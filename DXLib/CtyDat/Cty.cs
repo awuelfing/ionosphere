@@ -12,6 +12,16 @@ namespace DXLib.CtyDat
         {
             CtyDatInput = File.ReadAllText("cty.dat");
         }
+
+        /*todo (not comprehensive:
+         * US/Canada reciprocity format
+         * US stations operating domestically from other DXCC entities
+         * basically, the minority of situations where the stroke appears after the
+         * callsign AND we actually care about it
+         * I guess maybe some additional logic could be done to better derive the
+         * ITU zone and CQ zone from post-slashed callsigns as well, probably
+         * useful in contests
+         * */
         public static CtyResult MatchCall(String callsign)
         {
             string matchedPrefix = string.Empty;
@@ -50,6 +60,8 @@ namespace DXLib.CtyDat
                         {
                             if (callsign.StartsWith(prefixMatch.Groups["Prefix"].Value))
                             {
+                                if (prefixMatch.Groups["Prefix"].Value == "KG4" && callsign.Length != 5) continue;
+
                                 if (prefixMatch.Groups["Prefix"].Value.Length > matchedPrefix.Length)
                                 {
                                     matchedPrefix = prefixMatch.Groups["Prefix"].Value;
