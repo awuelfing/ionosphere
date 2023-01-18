@@ -10,7 +10,7 @@ namespace DXLib.CtyDat
 
         static Cty()
         {
-            CtyDatInput = File.ReadAllText("cty.dat");
+            CtyDatInput = File.ReadAllText(AppContext.BaseDirectory + "cty.dat");
         }
 
         /*todo (not comprehensive:

@@ -8,15 +8,16 @@ namespace DXLib.CtyDat
 {
     public class CtyResult
     {
-        public string Callsign = string.Empty;
-        public string DXCCEntityName = string.Empty;
-        public string CQZone = string.Empty;
-        public string ITUZone = string.Empty;
-        public string Continent = string.Empty;
-        public string Lat = string.Empty;
-        public string Long = string.Empty;
-        public string TZOffset = string.Empty;
-        public string PrimaryPrefix = string.Empty;
-        public bool ExactMatch = false;
+        //Added accessors to make this serialize in ASP.NET Core, not needed otherwise
+        public string Callsign { get; set; } = string.Empty;
+        public string DXCCEntityName { get; set; } = string.Empty;
+        public string CQZone { get; set; } = string.Empty;
+        public string ITUZone { get; set; } = string.Empty;
+        public string Continent { get; set; } = string.Empty;
+        public string Lat { get; set; } = string.Empty;
+        public string Long { get; set; } = string.Empty;
+        public string TZOffset { get; set; } = string.Empty;
+        public string PrimaryPrefix { get; set; } = string.Empty;
+        public bool ExactMatch { get; set; } = false;
     }
 }

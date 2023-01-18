@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DXLib", "DXLib\DXLib.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CtyConsole", "CtyConsole\CtyConsole.csproj", "{EA0D28EC-2CAD-4940-9306-35D032F50E03}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DXws", "DXws\DXws.csproj", "{06777F0B-01C3-49C2-BC89-9E75B8E610CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{EA0D28EC-2CAD-4940-9306-35D032F50E03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EA0D28EC-2CAD-4940-9306-35D032F50E03}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EA0D28EC-2CAD-4940-9306-35D032F50E03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06777F0B-01C3-49C2-BC89-9E75B8E610CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06777F0B-01C3-49C2-BC89-9E75B8E610CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06777F0B-01C3-49C2-BC89-9E75B8E610CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06777F0B-01C3-49C2-BC89-9E75B8E610CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
