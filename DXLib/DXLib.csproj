@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -8,6 +8,12 @@
 
   <ItemGroup>
     <None Remove="CtyDat\MASTER.SCP" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="ScpDb\MASTER.SCP">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

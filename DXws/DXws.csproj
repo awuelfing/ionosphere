@@ -10,6 +10,9 @@
     <None Include="..\DXLib\CtyDat\cty.dat" Link="cty.dat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\DXLib\ScpDb\MASTER.SCP" Link="MASTER.SCP">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

@@ -8,19 +8,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="MASTER.SCP" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\DXLib\CtyDat\cty.dat" Link="cty.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DXLib\ScpDb\MASTER.SCP" Link="MASTER.SCP">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DXLib\DXLib.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="MASTER.SCP">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

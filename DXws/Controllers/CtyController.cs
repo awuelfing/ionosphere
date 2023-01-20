@@ -6,13 +6,13 @@ using System.Text.Json.Serialization;
 
 namespace DXws.Controllers
 {
-    [Route("api/lookups")]
+    [Route("api/lookups/cty")]
     [ApiController]
-    public class LookupController : ControllerBase
+    public class CtyController : ControllerBase
     {
-        private readonly ILogger<LookupController> _logger;
+        private readonly ILogger<CtyController> _logger;
 
-        public LookupController(ILogger<LookupController> logger)
+        public CtyController(ILogger<CtyController> logger)
         {
             _logger = logger;
         }
