@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System.Diagnostics;
+using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
@@ -12,7 +13,7 @@ namespace ClusterConnection
         public int Spots = 0;
         public event EventHandler<SpotEventArgs> SpotReceived;
         public event EventHandler Disconnected;
-        private const string _spotRegex = @"^DX de (?<Spotter>.{11})(?<Frequency>.{9})(?<Spottee>.{13})(?<Comment>.+)(?<Time>.{4})Z$";
+        private static readonly string _spotRegex = @"^DX de (?<Spotter>.{11})(?<Frequency>.{9})(?<Spottee>.{13})(?<Comment>.+)(?<Time>.{4})Z$";
         private string _server, _username;
         private int _port = 0;
         private NetworkStream _ns = null;
@@ -48,6 +49,7 @@ namespace ClusterConnection
                 {
                     var line = _sr.ReadLine();
                     //Console.WriteLine(line);
+                    Debug.WriteLine(line);
                     MatchCollection spotCollection = Regex.Matches(line ?? "", _spotRegex, RegexOptions.Multiline);
 
                     foreach (Match spotMatch in spotCollection)
@@ -56,7 +58,7 @@ namespace ClusterConnection
                         EventHandler<SpotEventArgs> eventHandler = this.SpotReceived;
                         if (eventHandler != null)
                         {
-                            eventHandler(this, new SpotEventArgs(spotMatch.Groups["Spotter"].ToString().Trim().Replace(":",""),
+                            eventHandler(this, new SpotEventArgs(spotMatch.Groups["Spotter"].ToString().Trim().Replace(":","").Replace("-#",""),
                                 spotMatch.Groups["Frequency"].ToString().Trim(),
                                 spotMatch.Groups["Spottee"].ToString().Trim(),
                                 spotMatch.Groups["Comment"].ToString().Trim(),

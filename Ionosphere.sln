@@ -9,9 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CtyConsole", "CtyConsole\Ct
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DXws", "DXws\DXws.csproj", "{06777F0B-01C3-49C2-BC89-9E75B8E610CB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClusterConnection", "ClusterConnection\ClusterConnection.csproj", "{70F4DC4A-2E47-4679-9FE4-EBF88C745B00}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClusterConnection", "ClusterConnection\ClusterConnection.csproj", "{70F4DC4A-2E47-4679-9FE4-EBF88C745B00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClusterConsole", "ClusterConsole\ClusterConsole.csproj", "{2F1161D7-B673-4AFB-AB24-FF651AFEC9BB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClusterConsole", "ClusterConsole\ClusterConsole.csproj", "{2F1161D7-B673-4AFB-AB24-FF651AFEC9BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClusterDisplayConsole", "ClusterDisplayConsole\ClusterDisplayConsole.csproj", "{77826AA6-386E-4656-918D-C11A61ED3CFA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{2F1161D7-B673-4AFB-AB24-FF651AFEC9BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F1161D7-B673-4AFB-AB24-FF651AFEC9BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F1161D7-B673-4AFB-AB24-FF651AFEC9BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77826AA6-386E-4656-918D-C11A61ED3CFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77826AA6-386E-4656-918D-C11A61ED3CFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77826AA6-386E-4656-918D-C11A61ED3CFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77826AA6-386E-4656-918D-C11A61ED3CFA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
