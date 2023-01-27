@@ -1,8 +1,3 @@
-# ASP.NET Core (.NET Framework)
-# Build and test ASP.NET Core projects targeting the full .NET Framework.
-# Add steps that publish symbols, save build artifacts, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
-
 trigger:
 - master
 
@@ -28,7 +23,18 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- task: VSTest@2
+- task: DotNetCoreCLI@2
   inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    command: 'publish'
+    publishWebProjects: false
+    projects: './ClusterConsole/ClusterConsole.csproj'
+    arguments: '-o $(Build.ArtifactStagingDirectory)'   
+
+- task: AzureFileCopy@2
+  inputs:
+    SourcePath: '$(Build.ArtifactStagingDirectory)'
+    azureSubscription: 'Pay-As-You-Go(2a4e0346-ab89-4c4e-91a3-7b73249b2129)'
+    Destination: 'AzureBlob'
+    storage: 'severalrgb360'
+    ContainerName: 'ClusterConsole'
+    BlobPrefix: 'Binary'

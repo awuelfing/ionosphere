@@ -13,31 +13,54 @@ variables:
 
 steps:
 - task: NuGetToolInstaller@1
+  displayName: 'Install NuGet'
 
 - task: NuGetCommand@2
+  displayName: 'NuGet restore for solution'
   inputs:
     restoreSolution: '$(solution)'
 
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\DxWs\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- task: VSTest@2
+- task: DotNetCoreCLI@2
   inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-- task: PublishBuildArtifacts@1
+    command: 'publish'
+    publishWebProjects: false
+    projects: './ClusterConsole/ClusterConsole.csproj'
+    arguments: '-o $(Build.ArtifactStagingDirectory)/ClusterConsole'
+
+- task: PowerShell@2
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
+     targetType: 'inline'
+     script: 'Move-Item -Path "./ClusterConsole/ClusterConsole.zip" -Destination "./ClusterConsole/ClusterConsole$([DateTime]::Now.ToString("_yyyyMMdd_hhmm")).zip"'
+     workingDirectory: '$(Build.ArtifactStagingDirectory)'
+
 - task: AzureRmWebAppDeployment@4
   inputs:
     ConnectionType: 'AzureRM'
     azureSubscription: 'Pay-As-You-Go(2a4e0346-ab89-4c4e-91a3-7b73249b2129)'
     appType: 'webApp'
     WebAppName: 'ionosphere'
-    packageForLinux: '$(Build.ArtifactStagingDirectory)/**/*.zip'
+    packageForLinux: '$(Build.ArtifactStagingDirectory)/DxWs/*.zip'
+    
+
+- task: AzureFileCopy@2
+  inputs:
+    SourcePath: '$(Build.ArtifactStagingDirectory)/ClusterConsole/*.zip'
+    azureSubscription: 'Pay-As-You-Go(2a4e0346-ab89-4c4e-91a3-7b73249b2129)'
+    Destination: 'AzureBlob'
+    storage: 'severalrgb360'
+    ContainerName: 'Binaries'
+    BlobPrefix: 'Current'
+    CleanTargetBeforeCopy: true
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
