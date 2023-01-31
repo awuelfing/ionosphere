@@ -21,6 +21,7 @@ steps:
     restoreSolution: '$(solution)'
 
 - task: VSBuild@1
+  displayName: "Build solution"
   inputs:
     solution: '$(solution)'
     msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\DxWs\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
@@ -28,6 +29,7 @@ steps:
     configuration: '$(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
+  displayName: "Publish ClusterConsole"
   inputs:
     command: 'publish'
     publishWebProjects: false
@@ -35,12 +37,14 @@ steps:
     arguments: '-o $(Build.ArtifactStagingDirectory)/ClusterConsole'
 
 - task: PowerShell@2
+  displayName: "Rename ClusterConsole"
   inputs:
      targetType: 'inline'
      script: 'Move-Item -Path "./ClusterConsole/ClusterConsole.zip" -Destination "./ClusterConsole/ClusterConsole$([DateTime]::Now.ToString("_yyyyMMdd_hhmm")).zip"'
      workingDirectory: '$(Build.ArtifactStagingDirectory)'
 
 - task: AzureRmWebAppDeployment@4
+  displayName: "Push DxWs to Azure"
   inputs:
     ConnectionType: 'AzureRM'
     azureSubscription: 'Pay-As-You-Go(2a4e0346-ab89-4c4e-91a3-7b73249b2129)'
@@ -50,6 +54,7 @@ steps:
     
 
 - task: AzureFileCopy@2
+  displayName: "Copy ClusterConsole to Azure Blob"
   inputs:
     SourcePath: '$(Build.ArtifactStagingDirectory)/ClusterConsole/*.zip'
     azureSubscription: 'Pay-As-You-Go(2a4e0346-ab89-4c4e-91a3-7b73249b2129)'
@@ -60,6 +65,7 @@ steps:
     CleanTargetBeforeCopy: true
 
 - task: PublishBuildArtifacts@1
+  displayName: "Publish all outputs to pipeline artifacts"
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'

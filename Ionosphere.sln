@@ -15,8 +15,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClusterConsole", "ClusterCo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClusterDisplayConsole", "ClusterDisplayConsole\ClusterDisplayConsole.csproj", "{77826AA6-386E-4656-918D-C11A61ED3CFA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HamQTHTesting", "HamQTHTesting\HamQTHTesting.csproj", "{15723F40-645B-4E6E-BED9-B3BAE2C2B74E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,10 +45,6 @@ Global
 		{77826AA6-386E-4656-918D-C11A61ED3CFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{77826AA6-386E-4656-918D-C11A61ED3CFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{77826AA6-386E-4656-918D-C11A61ED3CFA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{15723F40-645B-4E6E-BED9-B3BAE2C2B74E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{15723F40-645B-4E6E-BED9-B3BAE2C2B74E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{15723F40-645B-4E6E-BED9-B3BAE2C2B74E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{15723F40-645B-4E6E-BED9-B3BAE2C2B74E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
