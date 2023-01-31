@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http.Json;
 using System.Text;
@@ -14,22 +16,27 @@ namespace DXLib.HamQTH
 {
     public class HamQTHGeo
     {
-        private static readonly string _username = "";
-        private static readonly string _password = "";
-        private static string _sessionID = string.Empty; // todo lock to make thread safe
+        private static readonly string _username;
+        private static readonly string _password;
+        private static string _sessionID = string.Empty;
         private static DateTime _sessionIssued = DateTime.MinValue;
         private static readonly HttpClient _httpClient;
         private static readonly string _loginRegex = @"\<session_id\>(\w+)\<\/session_id\>";
         private readonly NameValueCollection _workingQS;
         private readonly XmlSerializer _xmlSerializer;
-        private static SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1);
-
+        private static readonly SemaphoreSlim _semaphoreSlim = new(1);
+        private static readonly IConfigurationRoot _config;
 
         static HamQTHGeo()
         {
-            _httpClient = new HttpClient();
-            _httpClient.BaseAddress = new Uri("https://www.hamqth.com/");
-
+            _httpClient = new HttpClient
+            {
+                BaseAddress = new Uri("https://www.hamqth.com/")
+            };
+            var configurationBuilder = new ConfigurationBuilder().AddJsonFile("appsettings.json");
+            _config = configurationBuilder.Build();
+            _username = _config.GetValue<string>("HamQTH:Username","");
+            _password = _config.GetValue<string>("HamQTH:Password", "");
 
         }
         public HamQTHGeo()
@@ -58,7 +65,7 @@ namespace DXLib.HamQTH
             }
         }
 
-        private bool CheckSessionExpiration()
+        private static bool CheckSessionExpiration()
         {
             if ((DateTime.Now - _sessionIssued).TotalMinutes > 59)
             {
@@ -93,7 +100,7 @@ namespace DXLib.HamQTH
             string result = await _httpClient.GetStringAsync("xml.php?" + _workingQS.ToString());
             
             if (string.IsNullOrEmpty(result)) throw new Exception("Communication failure");
-            using StringReader stringReader = new StringReader(result);
+            using StringReader stringReader = new(result);
             HamQTHResult? hamQTHResult = (HamQTHResult?)_xmlSerializer.Deserialize(stringReader);
             if (hamQTHResult == null) throw new Exception("Failed to deserialize:\r\n" + result);
             return hamQTHResult;
