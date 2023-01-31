@@ -19,7 +19,22 @@ steps:
   displayName: 'NuGet restore for solution'
   inputs:
     restoreSolution: '$(solution)'
-
+- task: PowerShell@2
+  displayName: "Set secrets for HamQTH"
+  env:
+    HAMQTHUSERNAME: $(HAMQTHUSERNAME)
+    HAMQTHPASSWORD: $(HAMQTHPASSWORD)
+  inputs:
+    targetType: 'inline'
+    script: |
+      if(Test-Path "./DxWs/appsettings.json")
+      {
+          [string]$contents = [System.IO.File]::ReadAllText("./DxWs/appsettings.json")
+          $contents = $contents.Replace("ReplaceHamQTHUsername",${env:HAMQTHUSERNAME})
+          $contents = $contents.Replace("ReplaceHamQTHPassword",${env:HAMQTHPASSWORD})
+          [System.IO.File]::WriteAllText("./DxWs/appsettings.json",$contents)
+      }
+    workingDirectory: '$(Build.SourcesDirectory)'
 - task: VSBuild@1
   displayName: "Build solution"
   inputs:
