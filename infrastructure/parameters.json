@@ -1,0 +1,24 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "sites_ionosphere_name": {
+            "value": "ionosphere"
+        },
+        "components_ionosphere_name": {
+            "value": "ionosphere"
+        },
+        "serverfarms_ASP_rgionosphere_a11b_name": {
+            "value": "ASP-rgionosphere-a11b"
+        },
+        "smartdetectoralertrules_failure_anomalies___ionosphere_name": {
+            "value": "failure anomalies - ionosphere"
+        },
+        "actiongroups_application_insights_smart_detection_externalid": {
+            "value": "/subscriptions/2a4e0346-ab89-4c4e-91a3-7b73249b2129/resourceGroups/several-rg/providers/microsoft.insights/actiongroups/application insights smart detection"
+        },
+        "workspaces_defaultworkspace_2a4e0346_ab89_4c4e_91a3_7b73249b2129_eus_externalid": {
+            "value": "/subscriptions/2a4e0346-ab89-4c4e-91a3-7b73249b2129/resourceGroups/defaultresourcegroup-eus/providers/microsoft.operationalinsights/workspaces/defaultworkspace-2a4e0346-ab89-4c4e-91a3-7b73249b2129-eus"
+        }
+    }
+}
