@@ -19,6 +19,9 @@
         },
         "workspaces_defaultworkspace_2a4e0346_ab89_4c4e_91a3_7b73249b2129_eus_externalid": {
             "value": "/subscriptions/2a4e0346-ab89-4c4e-91a3-7b73249b2129/resourceGroups/defaultresourcegroup-eus/providers/microsoft.operationalinsights/workspaces/defaultworkspace-2a4e0346-ab89-4c4e-91a3-7b73249b2129-eus"
+        },
+        "storageAccounts_severalrgb360_name": {
+            "value": "stionosphere001"
         }
     }
 }
