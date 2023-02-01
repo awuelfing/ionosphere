@@ -86,7 +86,7 @@ steps:
     SourcePath: '$(Build.ArtifactStagingDirectory)/ClusterConsole/*.zip'
     azureSubscription: 'Pay-As-You-Go(2a4e0346-ab89-4c4e-91a3-7b73249b2129)'
     Destination: 'AzureBlob'
-    storage: 'severalrgb360'
+    storage: 'stionosphere001'
     ContainerName: 'Binaries'
     BlobPrefix: 'Current'
     CleanTargetBeforeCopy: true
