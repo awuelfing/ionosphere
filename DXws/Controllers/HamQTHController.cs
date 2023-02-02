@@ -17,7 +17,7 @@ namespace DXws.Controllers
         {
             HamQTHGeo hamQTHGeo = new();
             HamQTHResult hamQTHResult = await hamQTHGeo.GetGeo(callsign);
-            string serialized = JsonSerializer.Serialize(hamQTHResult, new JsonSerializerOptions()
+            string serialized = JsonSerializer.Serialize(hamQTHResult.SearchResult, new JsonSerializerOptions()
             {
                 DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
                 WriteIndented = true
