@@ -13,6 +13,7 @@ variables:
 
 steps:
 - task: AzureResourceManagerTemplateDeployment@3
+  displayName: "Run ARM template"
   inputs:
     deploymentScope: 'Resource Group'
     azureResourceManagerConnection: 'Pay-As-You-Go(2a4e0346-ab89-4c4e-91a3-7b73249b2129)'
@@ -55,14 +56,13 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 - task: VSTest@2
+  displayName: "Run tests"
   inputs:
     testSelector: 'testAssemblies'
     testAssemblyVer2: |
-      **\*test*.dll
-      !**\*TestAdapter.dll
+      **\DxLib.Tests.dll
       !**\obj\**
     searchFolder: '$(System.DefaultWorkingDirectory)'
-    codeCoverageEnabled: true
 
 - task: DotNetCoreCLI@2
   displayName: "Publish ClusterConsole"
