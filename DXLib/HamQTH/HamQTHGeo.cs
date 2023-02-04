@@ -14,7 +14,7 @@ using System.Xml.Serialization;
 
 namespace DXLib.HamQTH
 {
-    public class HamQTHGeo
+    public class HamQTHGeo : QthLookup
     {
         private static readonly string _username;
         private static readonly string _password;
@@ -44,7 +44,6 @@ namespace DXLib.HamQTH
             _xmlSerializer = new XmlSerializer(typeof(HamQTHResult));
             _workingQS = HttpUtility.ParseQueryString(string.Empty);
         }
-
         private async Task DoLogin()
         {
             _workingQS.Clear();
@@ -88,7 +87,7 @@ namespace DXLib.HamQTH
                 _semaphoreSlim.Release();
             }
         }
-        public async Task<HamQTHResult> GetGeo(string callsign)
+        public override async Task<HamQTHResult> GetGeo(string callsign)
         {
             await CheckSession();
 
