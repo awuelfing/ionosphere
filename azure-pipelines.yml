@@ -33,10 +33,13 @@ steps:
   inputs:
     restoreSolution: '$(solution)'
 - task: PowerShell@2
-  displayName: "Set secrets for HamQTH"
+  displayName: "Set secrets"
   env:
     HAMQTHUSERNAME: $(HAMQTHUSERNAME)
     HAMQTHPASSWORD: $(HAMQTHPASSWORD)
+    MongoDbConnectionString: $(MongoDbConnectionString)
+    MongoDbDatabase: $(MongoDbDatabase)
+    MongoDbCollection: $(MongoDbCollection)
   inputs:
     targetType: 'inline'
     script: |
@@ -45,6 +48,9 @@ steps:
           [string]$contents = [System.IO.File]::ReadAllText("./DxWs/appsettings.json")
           $contents = $contents.Replace("ReplaceHamQTHUsername",${env:HAMQTHUSERNAME})
           $contents = $contents.Replace("ReplaceHamQTHPassword",${env:HAMQTHPASSWORD})
+          $contents = $contents.Replace("ReplaceMongoDbConnectionString",${env:MongoDbConnectionString})
+          $contents = $contents.Replace("ReplaceMongoDbDatabase",${env:MongoDbDatabase})
+          $contents = $contents.Replace("ReplaceMongoDbCollection",${env:MongoDbCollection})
           [System.IO.File]::WriteAllText("./DxWs/appsettings.json",$contents)
       }
     workingDirectory: '$(Build.SourcesDirectory)'
