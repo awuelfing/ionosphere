@@ -107,6 +107,7 @@ namespace DXLib.HamQTH
                 status = "current"
             };
 
+            hamQTHResult.callsign = callsign.ToUpper();
             hamQTHResult.firstretrieved = DateTime.Now;
             hamQTHResult.lastretrieved = DateTime.Now;
             hamQTHResult.status = "current";
