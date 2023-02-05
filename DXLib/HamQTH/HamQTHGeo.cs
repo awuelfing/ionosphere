@@ -95,15 +95,22 @@ namespace DXLib.HamQTH
             Debug.WriteLine($"Retrieved reponse from HamQTH in {(DateTime.Now-start).TotalMilliseconds}ms");
 
             if (string.IsNullOrEmpty(result)) throw new Exception("Communication failure");
+            
             using StringReader stringReader = new(result);
             HamQTHResult? hamQTHResult = (HamQTHResult?)_xmlSerializer.Deserialize(stringReader);
-            if (hamQTHResult == null)
+
+            if (hamQTHResult == null) return new HamQTHResult()
             {
-                Debug.WriteLine("No result found from HamQTH.");
-                return null;
-            }
-            hamQTHResult.retrievaldate = DateTime.Now;
+                callsign = callsign.ToUpper(),
+                firstretrieved = DateTime.Now,
+                lastretrieved = DateTime.Now,
+                status = "current"
+            };
+
+            hamQTHResult.firstretrieved = DateTime.Now;
+            hamQTHResult.lastretrieved = DateTime.Now;
             hamQTHResult.status = "current";
+            hamQTHResult!.SearchResult!.nick = hamQTHResult!.SearchResult!.nick!.ToUpper();
             return hamQTHResult;
         }
     }

@@ -27,7 +27,7 @@ namespace DxLib.DbCaching
                 cm.SetIgnoreExtraElements(true);
             });
         }
-        public void Initialize() // move this stuff out of the constructor
+        public void Initialize() // moved this stuff out of the constructor
         {
             _settings = MongoClientSettings.FromConnectionString(_options.ConnectionString);
             _settings.SslSettings = new SslSettings()
@@ -43,16 +43,10 @@ namespace DxLib.DbCaching
 
         public async Task StoreResult(HamQTHResult result)
         {
-            if(result == null || result!.SearchResult == null)
-            {
-                Debug.WriteLine("Not storing null result");
-                return;
-            }
             if (!this.initialized)
             {
                 this.Initialize();
             }
-            result.SearchResult.callsign = result.SearchResult.callsign!.ToUpper();
             await _mongoCollection!.InsertOneAsync(result);
 
             return;
@@ -66,7 +60,7 @@ namespace DxLib.DbCaching
             }
 
             DateTime start = DateTime.UtcNow;
-            var filter = Builders<HamQTHResult>.Filter.Eq("SearchResult.callsign", callsign.ToUpper());
+            var filter = Builders<HamQTHResult>.Filter.Eq("callsign", callsign.ToUpper());
             var results = await _mongoCollection.FindAsync(filter);
             var result = await results.FirstOrDefaultAsync();
             Debug.WriteLine($"DB cache checked in {(start - DateTime.Now).TotalMilliseconds}ms");

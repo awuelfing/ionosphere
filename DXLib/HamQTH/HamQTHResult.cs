@@ -10,8 +10,10 @@ namespace DXLib.HamQTH
     [XmlRootAttribute("HamQTH", Namespace = "https://www.hamqth.com")]
     public class HamQTHResult
     {
+        public string? callsign { get; set; }
         public string? status { get; set; }
-        public DateTime? retrievaldate { get; set; }
+        public DateTime? firstretrieved { get; set; }
+        public DateTime? lastretrieved { get; set; }
         [XmlElement("search")]
         public HamQTHSearchResult? SearchResult { get; set; }
     }
