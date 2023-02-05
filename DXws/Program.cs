@@ -17,8 +17,8 @@ namespace DXws
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-
             builder.Services.Configure<DbCacheOptions>(builder.Configuration.GetSection(DbCacheOptions.DbCache));
+            builder.Services.Configure<HamQTHOptions>(builder.Configuration.GetSection(HamQTHOptions.HamQTH));
             builder.Services.AddScoped<HamQTHGeo, HamQTHGeo>();
             builder.Services.AddScoped<QthLookup>(s => new DbCache(s.GetRequiredService<IOptions<DbCacheOptions>>()) {Lower = s.GetRequiredService<HamQTHGeo>() });
 

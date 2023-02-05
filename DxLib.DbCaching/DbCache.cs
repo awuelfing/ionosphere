@@ -1,5 +1,4 @@
 ﻿using DXLib.HamQTH;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
