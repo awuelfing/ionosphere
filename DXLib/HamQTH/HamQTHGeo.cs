@@ -35,8 +35,8 @@ namespace DXLib.HamQTH
             };
             var configurationBuilder = new ConfigurationBuilder().AddJsonFile("appsettings.json");
             _config = configurationBuilder.Build();
-            _username = _config.GetValue<string>("HamQTH:Username","");
-            _password = _config.GetValue<string>("HamQTH:Password", "");
+            _username = _config.GetValue<string>("HamQTH:Username","")??"";
+            _password = _config.GetValue<string>("HamQTH:Password", "")??"";
 
         }
         public HamQTHGeo()
@@ -87,7 +87,7 @@ namespace DXLib.HamQTH
                 _semaphoreSlim.Release();
             }
         }
-        public override async Task<HamQTHResult> GetGeo(string callsign)
+        public override async Task<HamQTHResult?> GetGeo(string callsign)
         {
             await CheckSession();
 
@@ -96,12 +96,20 @@ namespace DXLib.HamQTH
             _workingQS["callsign"] = callsign;
             _workingQS["prg"] = "IONOSPHERE";
 
+            DateTime start = DateTime.Now;
             string result = await _httpClient.GetStringAsync("xml.php?" + _workingQS.ToString());
-            
+            Debug.WriteLine($"Retrieved reponse from HamQTH in {(DateTime.Now-start).TotalMilliseconds}ms");
+
             if (string.IsNullOrEmpty(result)) throw new Exception("Communication failure");
             using StringReader stringReader = new(result);
             HamQTHResult? hamQTHResult = (HamQTHResult?)_xmlSerializer.Deserialize(stringReader);
-            if (hamQTHResult == null) throw new Exception("Failed to deserialize:\r\n" + result);
+            if (hamQTHResult == null)
+            {
+                Debug.WriteLine("No result found from HamQTH.");
+                return null;
+            }
+            hamQTHResult.retrievaldate = DateTime.Now;
+            hamQTHResult.status = "current";
             return hamQTHResult;
         }
     }

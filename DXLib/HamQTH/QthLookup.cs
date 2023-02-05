@@ -2,7 +2,7 @@
 {
     public abstract class QthLookup
     {
-        public abstract Task<HamQTHResult> GetGeo(string callsign);
+        public abstract Task<HamQTHResult?> GetGeo(string callsign);
         public QthLookup? Lower;
     }
 }

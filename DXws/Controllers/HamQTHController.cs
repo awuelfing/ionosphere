@@ -1,28 +1,40 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DxLib.DbCaching;
+using Microsoft.AspNetCore.Mvc;
 using DXLib;
 using DXLib.HamQTH;
 using System.Text.Json;
+
 
 namespace DXws.Controllers
 {
     [Route("api/lookups/HamQTH")]
     public class HamQTHController : Controller
     {
-        public HamQTHController()
+        private QthLookup _QthLookup;
+        public HamQTHController(QthLookup qthLookup)
         {
-            
+            _QthLookup = qthLookup;
         }
         [HttpGet]
         public async Task<ActionResult> Get(string callsign)
         {
-            HamQTHGeo hamQTHGeo = new();
-            HamQTHResult hamQTHResult = await hamQTHGeo.GetGeo(callsign);
-            string serialized = JsonSerializer.Serialize(hamQTHResult.SearchResult, new JsonSerializerOptions()
+            HamQTHResult? hamQTHResult = await _QthLookup.GetGeo(callsign);
+            HamQTHSearchResult? hamQTHSearchResult = hamQTHResult!.SearchResult;
+            if (hamQTHSearchResult != null)
             {
-                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
-                WriteIndented = true
-            });
-            return Ok(serialized);
+                string serialized = JsonSerializer.Serialize(hamQTHSearchResult, new JsonSerializerOptions()
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+                    WriteIndented = true
+                });
+                return Ok(serialized);
+            }
+            else
+            {
+                return NotFound();
+            }
+            
+             
         }
     }
 }

@@ -1,3 +1,7 @@
+using DxLib.DbCaching;
+using DXLib.HamQTH;
+using Microsoft.Extensions.Options;
+
 namespace DXws
 {
     public class Program
@@ -12,6 +16,11 @@ namespace DXws
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+
+            builder.Services.Configure<DbCacheOptions>(builder.Configuration.GetSection(DbCacheOptions.DbCache));
+            builder.Services.AddScoped<HamQTHGeo, HamQTHGeo>();
+            builder.Services.AddScoped<QthLookup>(s => new DbCache(s.GetRequiredService<IOptions<DbCacheOptions>>()) {Lower = s.GetRequiredService<HamQTHGeo>() });
 
             var app = builder.Build();
 
@@ -28,6 +37,7 @@ namespace DXws
 
 
             app.MapControllers();
+
 
             app.Run();
         }

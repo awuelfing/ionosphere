@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DxLib.DbCaching\DxLib.DbCaching.csproj" />
     <ProjectReference Include="..\DXLib\DXLib.csproj" />
   </ItemGroup>
 
