@@ -4,11 +4,11 @@ namespace ClusterConsole
 {
     internal class Program
     {
-        static void ReceiveSpots(object sender, SpotEventArgs e)
+        static void ReceiveSpots(object? sender, SpotEventArgs e)
         {
             Console.WriteLine($"{e.Spotter} saw {e.Spottee}");
         }
-        static void ReceiveDisconnect(object sender, EventArgs e)
+        static void ReceiveDisconnect(object? sender, EventArgs e)
         {
             Console.WriteLine("Disconnected.");
         }
