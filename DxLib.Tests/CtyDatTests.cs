@@ -8,14 +8,15 @@ namespace DxLib.Tests
     public class CtyDatTests
     {
         [TestMethod]
-        [DataRow("AJ1AJ")]
-        [DataRow("W1AW")]
-        public void CtyDat_Check_Basic_USA(string callsign)
+        [DataRow("AJ1AJ", "United States")]
+        [DataRow("W1AW", "United States")]
+        [DataRow("GB13COL", "England")]
+        [DataRow("M0MCX", "England")]
+        public void CtyDat_Check_Basic(string callsign,string expected)
         {
-            const string expectedResult = "United States";
             var match = Cty.MatchCall(callsign);
             var result = match.DXCCEntityName;
-            Assert.AreEqual(result, expectedResult,$"{callsign} should be US");
+            Assert.AreEqual(result, expected, $"{callsign} should be {expected}");
         }
 
         [TestMethod]
@@ -29,16 +30,6 @@ namespace DxLib.Tests
             Assert.AreEqual(result, expectedResult,$"{callsign} should be an exact match for an out-of-area callsign");
         }
 
-        [TestMethod]
-        [DataRow("GB13COL")]
-        [DataRow("M0MCX")]
-        public void CtyDat_Check_England(string callsign)
-        {
-            const string expectedResult = "England";
-            var match = Cty.MatchCall(callsign);
-            var result = match.DXCCEntityName;
-            Assert.AreEqual(result, expectedResult,$"{callsign} should be England");
-        }
         [TestMethod]
         [DataRow("KG4ZZ")] //not (unnecessarily) referenced exactly in CtyDat
         [DataRow("KG4BP")] // referenced exactly in CtyDat
