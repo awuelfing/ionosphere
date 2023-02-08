@@ -11,9 +11,11 @@ namespace DXws.Controllers
     public class HamQTHController : Controller
     {
         private QthLookup _QthLookup;
-        public HamQTHController(QthLookup qthLookup)
+        private DbQueue _dbQueue;
+        public HamQTHController(QthLookup qthLookup, DbQueue dbQueue)
         {
             _QthLookup = qthLookup;
+            _dbQueue = dbQueue;
         }
         [HttpGet]
         public async Task<ActionResult> Get(string callsign)
@@ -33,8 +35,13 @@ namespace DXws.Controllers
             {
                 return NotFound();
             }
-            
-             
+        }
+        [HttpGet]
+        [Route("Queue")]
+        public async Task<ActionResult> Queue(string callsign)
+        {
+            await _dbQueue.EnqueueAsync(callsign);
+            return Ok();
         }
     }
 }

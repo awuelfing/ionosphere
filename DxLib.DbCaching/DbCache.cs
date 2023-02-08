@@ -14,7 +14,7 @@ namespace DxLib.DbCaching
         private MongoClient? _mongoClient;
         private IMongoDatabase? _mongoDatabase;
         private IMongoCollection<HamQTHResult>? _mongoCollection;
-        private bool initialized = false;
+        private bool _initialized = false;
         public DbCache(IOptions<DbCacheOptions> options)
         {
             _options = options.Value;
@@ -38,12 +38,12 @@ namespace DxLib.DbCaching
 
             _mongoDatabase = _mongoClient.GetDatabase(_options.Database);
             _mongoCollection = _mongoDatabase.GetCollection<HamQTHResult>(_options.Collection);
-            initialized= true;
+            _initialized= true;
         }
 
         public async Task StoreResult(HamQTHResult result)
         {
-            if (!this.initialized)
+            if (!this._initialized)
             {
                 this.Initialize();
             }
@@ -54,7 +54,7 @@ namespace DxLib.DbCaching
 
         public override async Task<HamQTHResult?> GetGeoAsync(string callsign)
         {
-            if (!this.initialized)
+            if (!this._initialized)
             {
                 this.Initialize();
             }

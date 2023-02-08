@@ -21,6 +21,7 @@ namespace DXws
             builder.Services.Configure<HamQTHOptions>(builder.Configuration.GetSection(HamQTHOptions.HamQTH));
             builder.Services.AddScoped<HamQTHGeo, HamQTHGeo>();
             builder.Services.AddScoped<QthLookup>(s => new DbCache(s.GetRequiredService<IOptions<DbCacheOptions>>()) {Lower = s.GetRequiredService<HamQTHGeo>() });
+            builder.Services.AddScoped<DbQueue, DbQueue>();
 
             var app = builder.Build();
 
