@@ -40,6 +40,7 @@ steps:
     MongoDbConnectionString: $(MongoDbConnectionString)
     MongoDbDatabase: $(MongoDbDatabase)
     MongoDbCollection: $(MongoDbCollection)
+    MongoDbQueueCollection: $(MongoDbQueueCollection)
   inputs:
     targetType: 'inline'
     script: |
@@ -51,6 +52,7 @@ steps:
           $contents = $contents.Replace("ReplaceMongoDbConnectionString",${env:MongoDbConnectionString})
           $contents = $contents.Replace("ReplaceMongoDbDatabase",${env:MongoDbDatabase})
           $contents = $contents.Replace("ReplaceMongoDbCollection",${env:MongoDbCollection})
+          $contents = $contents.Replace("ReplaceMongoDbQueueCollection",${env:MongoDbQueueCollection})
           [System.IO.File]::WriteAllText("./DxWs/appsettings.json",$contents)
       }
     workingDirectory: '$(Build.SourcesDirectory)'
