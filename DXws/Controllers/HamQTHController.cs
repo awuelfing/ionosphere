@@ -18,7 +18,7 @@ namespace DXws.Controllers
         [HttpGet]
         public async Task<ActionResult> Get(string callsign)
         {
-            HamQTHResult? hamQTHResult = await _QthLookup.GetGeo(callsign);
+            HamQTHResult? hamQTHResult = await _QthLookup.GetGeoAsync(callsign);
             HamQTHSearchResult? hamQTHSearchResult = hamQTHResult!.SearchResult;
             if (hamQTHSearchResult != null)
             {

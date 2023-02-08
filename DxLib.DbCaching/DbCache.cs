@@ -52,7 +52,7 @@ namespace DxLib.DbCaching
             return;
         }
 
-        public override async Task<HamQTHResult?> GetGeo(string callsign)
+        public override async Task<HamQTHResult?> GetGeoAsync(string callsign)
         {
             if (!this.initialized)
             {
@@ -75,7 +75,7 @@ namespace DxLib.DbCaching
             {
                 throw new Exception("GeoGeo() - no match and no lower configuration available");
             }
-            result = await base.Lower.GetGeo(callsign);
+            result = await base.Lower.GetGeoAsync(callsign);
 
             if(result != null)
             {

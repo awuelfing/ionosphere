@@ -2,7 +2,12 @@
 {
     public abstract class QthLookup
     {
-        public abstract Task<HamQTHResult?> GetGeo(string callsign);
+        public HamQTHResult? GetGeo(string callsign)
+        {
+            Task<HamQTHResult?> t = Task.Run<HamQTHResult?>(async () => await this.GetGeoAsync(callsign));
+            return t.Result;
+        }
+        public abstract Task<HamQTHResult?> GetGeoAsync(string callsign);
         public QthLookup? Lower;
     }
 }

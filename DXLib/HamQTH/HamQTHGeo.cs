@@ -81,7 +81,7 @@ namespace DXLib.HamQTH
                 _semaphoreSlim.Release();
             }
         }
-        public override async Task<HamQTHResult?> GetGeo(string callsign)
+        public override async Task<HamQTHResult?> GetGeoAsync(string callsign)
         {
             await CheckSession();
 
