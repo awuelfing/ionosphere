@@ -15,4 +15,4 @@ $Results = foreach($Match in $RegMatches){
     }
 }
 
-$Results | Export-Csv -NoTypeInformation -Path "RBN.csv" -Delimiter ","
+$Results | Export-Csv -NoTypeInformation -Path "RBN.csv" -Delimiter "," -UseQuotes Never
