@@ -43,5 +43,21 @@ namespace DXws.Controllers
             await _dbQueue.EnqueueAsync(callsign);
             return Ok();
         }
+        [HttpGet]
+        [Route("Dequeue")]
+        public async Task<ActionResult> Dequeue()
+        {
+            var result = await _dbQueue.DequeueAsync(false);
+            if(result!= null) return Ok(result);
+            else return NotFound();
+        }
+        [HttpGet]
+        [Route("Peek")]
+        public async Task<ActionResult> Peek()
+        {
+            var result = await _dbQueue.DequeueAsync(true);
+            if (result != null) return Ok(result);
+            else return NotFound();
+        }
     }
 }

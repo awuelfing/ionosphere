@@ -70,5 +70,24 @@ namespace DxLib.DbCaching
             }
             return;
         }
+        public async Task<DbQueueRecord?> DequeueAsync(bool peek = false)
+        {
+            if (!this._initialized)
+            {
+                this.Initialize();
+            }
+
+            var filter = Builders<DbQueueRecord>.Filter.Empty;
+            var sort = Builders<DbQueueRecord>.Sort.Descending("RequestedCount");
+            var options = new FindOptions<DbQueueRecord>() { Sort= sort };
+            var cursor = await _mongoCollection!.FindAsync(filter, options);
+            var result = await cursor.FirstOrDefaultAsync();
+            if (!peek && result != null)
+            {
+                filter = Builders<DbQueueRecord>.Filter.Eq("Callsign", result.Callsign);
+                await _mongoCollection.DeleteOneAsync(filter);
+            }
+            return result;
+        }
     }
 }
