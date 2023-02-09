@@ -77,7 +77,13 @@ namespace DxLib.DbCaching
 
             if (base.Lower == null)
             {
-                throw new Exception("GeoGeo() - no match and no lower configuration available");
+                return new HamQTHResult()
+                {
+                    callsign = callsign.ToUpper(),
+                    firstretrieved = DateTime.Now,
+                    lastretrieved = DateTime.Now,
+                    status = "current"
+                };
             }
             result = await base.Lower.GetGeoAsync(callsign);
 
