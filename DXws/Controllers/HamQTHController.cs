@@ -37,6 +37,25 @@ namespace DXws.Controllers
             }
         }
         [HttpGet]
+        [Route("GetFullRecord")]
+        public async Task<ActionResult> GetFullRecord(string callsign)
+        {
+            HamQTHResult? hamQTHResult = await _QthLookup.GetGeoAsync(callsign);
+            if (hamQTHResult != null)
+            {
+                string serialized = JsonSerializer.Serialize(hamQTHResult, new JsonSerializerOptions()
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+                    WriteIndented = true
+                });
+                return Ok(serialized);
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+        [HttpGet]
         [Route("Queue")]
         public async Task<ActionResult> Queue(string callsign)
         {
