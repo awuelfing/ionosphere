@@ -19,6 +19,10 @@ namespace DxLib.DbCaching
         {
             _options = options.Value;
         }
+        public DbCache(DbCacheOptions options)
+        {
+            _options = options;
+        }
         static DbCache()
         {
             BsonClassMap.RegisterClassMap<HamQTHResult>(cm =>

@@ -22,6 +22,10 @@ namespace DxLib.DbCaching
         {
             _options = options.Value;
         }
+        public DbQueue(DbCacheOptions options)
+        {
+            _options = options;
+        }
         static DbQueue()
         {
             BsonClassMap.RegisterClassMap<DbQueueRecord>(cm =>
