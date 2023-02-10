@@ -41,6 +41,7 @@ steps:
     MongoDbDatabase: $(MongoDbDatabase)
     MongoDbCollection: $(MongoDbCollection)
     MongoDbQueueCollection: $(MongoDbQueueCollection)
+    JwtKey: $(JwtKey)
   inputs:
     targetType: 'inline'
     script: |
@@ -53,6 +54,7 @@ steps:
           $contents = $contents.Replace("ReplaceMongoDbDatabase",${env:MongoDbDatabase})
           $contents = $contents.Replace("ReplaceMongoDbCollection",${env:MongoDbCollection})
           $contents = $contents.Replace("ReplaceMongoDbQueueCollection",${env:MongoDbQueueCollection})
+          $contents = $contents.Replace("ReplaceJwtKey",${env:JwtKey})
           [System.IO.File]::WriteAllText("./DxWs/appsettings.json",$contents)
       }
     workingDirectory: '$(Build.SourcesDirectory)'
