@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using DXLib;
 using DXLib.HamQTH;
 using System.Text.Json;
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace DXws.Controllers
 {
@@ -18,6 +18,7 @@ namespace DXws.Controllers
             _dbQueue = dbQueue;
         }
         [HttpGet]
+        [Authorize(Roles = "Read")]
         public async Task<ActionResult> Get(string callsign)
         {
             HamQTHResult? hamQTHResult = await _QthLookup.GetGeoAsync(callsign);
@@ -38,6 +39,7 @@ namespace DXws.Controllers
         }
         [HttpGet]
         [Route("GetFullRecord")]
+        [Authorize(Roles = "Read")]
         public async Task<ActionResult> GetFullRecord(string callsign)
         {
             HamQTHResult? hamQTHResult = await _QthLookup.GetGeoAsync(callsign);

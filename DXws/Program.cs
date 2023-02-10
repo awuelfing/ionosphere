@@ -1,6 +1,9 @@
 using DxLib.DbCaching;
 using DXLib.HamQTH;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace DXws
 {
@@ -10,6 +13,23 @@ namespace DXws
         {
             var builder = WebApplication.CreateBuilder(args);
 
+
+            byte[] key = Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>("JwtKey")??"");
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = "me",
+                        ValidAudience = "me",
+                        IssuerSigningKey = new SymmetricSecurityKey(key)
+                    };
+                });
             // Add services to the container.
 
             builder.Services.AddControllers();
@@ -20,10 +40,12 @@ namespace DXws
             builder.Services.Configure<DbCacheOptions>(builder.Configuration.GetSection(DbCacheOptions.DbCache));
             builder.Services.Configure<HamQTHOptions>(builder.Configuration.GetSection(HamQTHOptions.HamQTH));
             builder.Services.AddScoped<HamQTHGeo, HamQTHGeo>();
-            builder.Services.AddScoped<QthLookup>(s => new DbCache(s.GetRequiredService<IOptions<DbCacheOptions>>()) {Lower = s.GetRequiredService<HamQTHGeo>() });
+            builder.Services.AddScoped<QthLookup>(s => new DbCache(s.GetRequiredService<IOptions<DbCacheOptions>>()) { Lower = s.GetRequiredService<HamQTHGeo>() });
             builder.Services.AddScoped<DbQueue, DbQueue>();
 
             var app = builder.Build();
+
+            app.UseAuthentication();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
