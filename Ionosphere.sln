@@ -5,8 +5,6 @@ VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DXLib", "DXLib\DXLib.csproj", "{14F1BADC-8568-4A3A-8857-89E402837B8F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CtyConsole", "CtyConsole\CtyConsole.csproj", "{EA0D28EC-2CAD-4940-9306-35D032F50E03}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DXws", "DXws\DXws.csproj", "{06777F0B-01C3-49C2-BC89-9E75B8E610CB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClusterConnection", "ClusterConnection\ClusterConnection.csproj", "{70F4DC4A-2E47-4679-9FE4-EBF88C745B00}"
@@ -19,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DxLib.Tests", "DxLib.Tests\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DxLib.DbCaching", "DxLib.DbCaching\DxLib.DbCaching.csproj", "{A78AAFEF-C75E-4822-A958-9387F524CB91}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClusterTaskRunner", "ClusterTaskRunner\ClusterTaskRunner.csproj", "{B742D2DA-499E-45B4-B433-941DD28C46CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClusterTaskRunner", "ClusterTaskRunner\ClusterTaskRunner.csproj", "{B742D2DA-499E-45B4-B433-941DD28C46CF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,10 +29,6 @@ Global
 		{14F1BADC-8568-4A3A-8857-89E402837B8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14F1BADC-8568-4A3A-8857-89E402837B8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14F1BADC-8568-4A3A-8857-89E402837B8F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EA0D28EC-2CAD-4940-9306-35D032F50E03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EA0D28EC-2CAD-4940-9306-35D032F50E03}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EA0D28EC-2CAD-4940-9306-35D032F50E03}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EA0D28EC-2CAD-4940-9306-35D032F50E03}.Release|Any CPU.Build.0 = Release|Any CPU
 		{06777F0B-01C3-49C2-BC89-9E75B8E610CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{06777F0B-01C3-49C2-BC89-9E75B8E610CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06777F0B-01C3-49C2-BC89-9E75B8E610CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
