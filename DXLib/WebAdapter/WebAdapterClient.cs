@@ -20,10 +20,12 @@ namespace DXLib.WebAdapter
         public WebAdapterClient(IOptions<WebAdapterOptions> options)
         {
             _httpClient.BaseAddress = new Uri(options.Value.BaseURL);
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {options.Value.JwtToken}");
         }
         public WebAdapterClient(WebAdapterOptions options)
         {
             _httpClient.BaseAddress = new Uri(options.BaseURL);
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {options.JwtToken}");
         }
 
         public override async Task<HamQTHResult?> GetGeoAsync(string callsign)

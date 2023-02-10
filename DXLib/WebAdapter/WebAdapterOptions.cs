@@ -10,5 +10,6 @@ namespace DXLib.WebAdapter
     {
         public const string WebAdapter = "WebAdapter";
         public string BaseURL { get; set; } = string.Empty;
+        public string JwtToken { get; set; } = string.Empty;
     }
 }
