@@ -11,45 +11,49 @@ namespace ClusterTaskRunner
     {
         private static readonly ConcurrentQueue<string> _queue = new ConcurrentQueue<string>();
         private static DbQueue? _dbQueue;
+        private static DbCache? _dbCache;
         private static WebAdapterClient? _webAdapterClient;
+        private static ClusterClient? _clusterClient;
+        private static ProgramOptions? _programOptions;
         static void ReceiveSpots(object? sender, SpotEventArgs e)
         {
-            //Console.WriteLine($"{e.Spotter} saw {e.Spottee}");
             _queue.Enqueue(e.Spottee);
         }
         static void ReceiveDisconnect(object? sender, EventArgs e)
         {
             Console.WriteLine("Disconnected.");
         }
-        static void ProcessUploads()
+        static async void ProcessUploads()
         {
             string? Callsign = string.Empty;
-            while(true)
+            while (true)
             {
-                if(_queue.TryDequeue(out Callsign))
+                if (_queue.TryDequeue(out Callsign))
                 {
-                    // .Wait() is for rate limiting, remove if this gets clogged.
-                    // Make this an option?
-                    _dbQueue!.EnqueueAsync(Callsign).Wait();
+                    HamQTHResult? result = await _dbCache!.GetGeoAsync(Callsign);
+                    if (result == null)
+                    {
+                        // .Wait() is for rate limiting, remove if this gets clogged.
+                        // Make this an option?
+                        await _dbQueue!.EnqueueAsync(Callsign);
+                    }
                 }
             }
         }
-        static void ProcessResolver()
+        static async void ProcessResolver()
         {
             while (true)
             {
-                Thread.Sleep(5000);
-                Task<DbQueueRecord?> t = _dbQueue!.DequeueAsync(false);
-                t.Wait();
-                if(t.Result != null)
+                await Task.Delay(_programOptions!.ResolverDelay*1000);
+                DbQueueRecord? record = await _dbQueue!.DequeueAsync(false);
+                if (record != null)
                 {
-                    //Console.WriteLine($"Attempting to resolve {t.Result.Callsign}");
-                    Task<HamQTHResult?> u = _webAdapterClient!.GetGeoAsync(t.Result.Callsign);
-                    u.Wait();
-                    //Console.WriteLine($"Got a {u.Result!.status}");
-                    if(u.Result!.SearchResult!= null)
+                    Console.WriteLine($"Attempting to resolve {record.Callsign}");
+                    HamQTHResult? result = await _webAdapterClient!.GetGeoAsync(record.Callsign);
+
+                    if (result!.SearchResult != null)
                     {
-                        //Console.WriteLine($"Got {u.Result.SearchResult.nick}");
+                        Console.WriteLine($"Resolved {result.SearchResult.callsign}");
                     }
                 }
             }
@@ -61,32 +65,56 @@ namespace ClusterTaskRunner
                .AddJsonFile("appsettings.json")
                .Build();
 
-            DbCacheOptions dbCacheOptions = new DbCacheOptions();
-            configurationRoot.GetSection(DbCacheOptions.DbCache).Bind(dbCacheOptions);
-            _dbQueue = new DbQueue(dbCacheOptions);
+            _programOptions = new ProgramOptions();
+            configurationRoot.GetSection(ProgramOptions.ProgramOptionName).Bind(_programOptions);
 
-            ClusterClientOptions clusterClientOptions = new ClusterClientOptions();
-            configurationRoot.GetSection(ClusterClientOptions.ClusterClient).Bind(clusterClientOptions);
-            ClusterClient clusterClient = new ClusterClient(clusterClientOptions.Host, clusterClientOptions.Port,clusterClientOptions.Callsign);
-
-            WebAdapterOptions webAdapterOptions = new WebAdapterOptions();
-            configurationRoot.GetSection(WebAdapterOptions.WebAdapter).Bind(webAdapterOptions);
-            _webAdapterClient = new WebAdapterClient(webAdapterOptions);
-            
-            if (!clusterClient.Connect())
+            if (_programOptions.EnableUploader || _programOptions.EnableResolver)
             {
-                Console.WriteLine("Failed to connect.");
-                return;
+                DbCacheOptions dbCacheOptions = new DbCacheOptions();
+                configurationRoot.GetSection(DbCacheOptions.DbCache).Bind(dbCacheOptions);
+                _dbQueue = new DbQueue(dbCacheOptions);
+                _dbCache = new DbCache(dbCacheOptions);
             }
-            clusterClient.SpotReceived += ReceiveSpots;
-            clusterClient.Disconnected += ReceiveDisconnect;
 
-            Task ProcessUploadTask = Task.Run(() => { ProcessUploads(); });
-            Task ProcessResolverTask = Task.Run(() => { ProcessResolver(); });
+            if (_programOptions.EnableResolver)
+            {
+                WebAdapterOptions webAdapterOptions = new WebAdapterOptions();
+                configurationRoot.GetSection(WebAdapterOptions.WebAdapter).Bind(webAdapterOptions);
+                _webAdapterClient = new WebAdapterClient(webAdapterOptions);
+            }
 
-            Thread.Sleep(100000);
-            clusterClient.ProcessSpots();
+            if (_programOptions.EnableClusterConnection)
+            {
+                ClusterClientOptions clusterClientOptions = new ClusterClientOptions();
+                configurationRoot.GetSection(ClusterClientOptions.ClusterClient).Bind(clusterClientOptions);
+                _clusterClient = new ClusterClient(clusterClientOptions.Host, clusterClientOptions.Port, clusterClientOptions.Callsign);
 
+                if (!_clusterClient.Connect())
+                {
+                    Console.WriteLine("Failed to connect.");
+                    return;
+                }
+                _clusterClient.SpotReceived += ReceiveSpots;
+                _clusterClient.Disconnected += ReceiveDisconnect;
+            }
+
+            Task? t1 = null, t2 = null, t3 = null;
+            if (_programOptions.EnableUploader)
+            {
+                t1 = Task.Run(() => { ProcessUploads(); });
+            }
+            if (_programOptions.EnableResolver)
+            {
+                t2 = Task.Run(() => { ProcessResolver(); });
+            }
+            if (_programOptions.EnableClusterConnection)
+            {
+                t3 = Task.Run(() => { _clusterClient!.ProcessSpots(); });
+            }
+
+            if (t1 != null) t1.Wait();
+            if (t2 != null) t2.Wait();
+            if (t3 != null) t3!.Wait();
         }
     }
 }

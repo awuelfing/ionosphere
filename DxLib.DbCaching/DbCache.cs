@@ -77,13 +77,7 @@ namespace DxLib.DbCaching
 
             if (base.Lower == null)
             {
-                return new HamQTHResult()
-                {
-                    callsign = callsign.ToUpper(),
-                    firstretrieved = DateTime.Now,
-                    lastretrieved = DateTime.Now,
-                    status = "current"
-                };
+                return null;
             }
             result = await base.Lower.GetGeoAsync(callsign);
 
