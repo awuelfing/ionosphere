@@ -58,6 +58,14 @@ namespace ClusterTaskRunner
                 }
             }
         }
+        static async void ProcessKeepAlive()
+        {
+            while(true)
+            {
+                await _webAdapterClient!.DoKeepAlive();
+                await Task.Delay(_programOptions!.KeepAliveDelay *1000);
+            }
+        }
         static void Main(string[] args)
         {
             IConfigurationRoot configurationRoot = new ConfigurationBuilder()
@@ -76,7 +84,7 @@ namespace ClusterTaskRunner
                 _dbCache = new DbCache(dbCacheOptions);
             }
 
-            if (_programOptions.EnableResolver)
+            if (_programOptions.EnableResolver || _programOptions.EnableKeepAlive)
             {
                 WebAdapterOptions webAdapterOptions = new WebAdapterOptions();
                 configurationRoot.GetSection(WebAdapterOptions.WebAdapter).Bind(webAdapterOptions);
@@ -98,7 +106,7 @@ namespace ClusterTaskRunner
                 _clusterClient.Disconnected += ReceiveDisconnect;
             }
 
-            Task? t1 = null, t2 = null, t3 = null;
+            Task? t1 = null, t2 = null, t3 = null,t4 = null;
             if (_programOptions.EnableUploader)
             {
                 t1 = Task.Run(() => { ProcessUploads(); });
@@ -111,10 +119,15 @@ namespace ClusterTaskRunner
             {
                 t3 = Task.Run(() => { _clusterClient!.ProcessSpots(); });
             }
+            if(_programOptions.EnableKeepAlive)
+            {
+                t4 = Task.Run(() => { ProcessKeepAlive(); });
+            }
 
             if (t1 != null) t1.Wait();
             if (t2 != null) t2.Wait();
-            if (t3 != null) t3!.Wait();
+            if (t3 != null) t3.Wait();
+            if (t4 != null) t4.Wait();
         }
     }
 }

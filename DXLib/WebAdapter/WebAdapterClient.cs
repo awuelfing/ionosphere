@@ -32,5 +32,10 @@ namespace DXLib.WebAdapter
         {
             return await _httpClient.GetFromJsonAsync<HamQTHResult?>($"/api/lookups/HamQTH/GetFullRecord?callsign={callsign}");
         }
+        public async Task DoKeepAlive()
+        {
+            await _httpClient.GetAsync("/api/lookups/scp?callsign=W1AW");
+            return;
+        }
     }
 }

@@ -13,5 +13,7 @@ namespace ClusterTaskRunner
         public bool EnableUploader { get; set; } = false;
         public bool EnableResolver { get; set; } = false;
         public int ResolverDelay { get; set; } = 5;
+        public bool EnableKeepAlive { get; set; } = false;
+        public int KeepAliveDelay { get; set; } = 120;
     }
 }
