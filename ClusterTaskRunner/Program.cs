@@ -4,6 +4,7 @@ using ClusterConnection;
 using System.Collections.Concurrent;
 using DXLib.WebAdapter;
 using DXLib.HamQTH;
+using System.Diagnostics;
 
 namespace ClusterTaskRunner
 {
@@ -23,7 +24,7 @@ namespace ClusterTaskRunner
         {
             Console.WriteLine("Disconnected.");
         }
-        static async void ProcessUploads()
+        static async Task ProcessUploads()
         {
             string? Callsign = string.Empty;
             while (true)
@@ -40,7 +41,7 @@ namespace ClusterTaskRunner
                 }
             }
         }
-        static async void ProcessResolver()
+        static async Task ProcessResolver()
         {
             while (true)
             {
@@ -48,17 +49,17 @@ namespace ClusterTaskRunner
                 DbQueueRecord? record = await _dbQueue!.DequeueAsync(false);
                 if (record != null)
                 {
-                    Console.WriteLine($"Attempting to resolve {record.Callsign}");
+                    Debug.WriteLine($"Attempting to resolve {record.Callsign}");
                     HamQTHResult? result = await _webAdapterClient!.GetGeoAsync(record.Callsign);
 
                     if (result!.SearchResult != null)
                     {
-                        Console.WriteLine($"Resolved {result.SearchResult.callsign}");
+                        Debug.WriteLine($"Resolved {result.SearchResult.callsign}");
                     }
                 }
             }
         }
-        static async void ProcessKeepAlive()
+        static async Task ProcessKeepAlive()
         {
             while(true)
             {
@@ -109,11 +110,11 @@ namespace ClusterTaskRunner
             Task? t1 = null, t2 = null, t3 = null,t4 = null;
             if (_programOptions.EnableUploader)
             {
-                t1 = Task.Run(() => { ProcessUploads(); });
+                t1 = Task.Run(() => { ProcessUploads().Wait(); });
             }
             if (_programOptions.EnableResolver)
             {
-                t2 = Task.Run(() => { ProcessResolver(); });
+                t2 = Task.Run(() => { ProcessResolver().Wait(); });
             }
             if (_programOptions.EnableClusterConnection)
             {
@@ -121,13 +122,13 @@ namespace ClusterTaskRunner
             }
             if(_programOptions.EnableKeepAlive)
             {
-                t4 = Task.Run(() => { ProcessKeepAlive(); });
+                t4 = Task.Run(() => { ProcessKeepAlive().Wait(); });
             }
 
-            if (t1 != null) t1.Wait();
-            if (t2 != null) t2.Wait();
-            if (t3 != null) t3.Wait();
-            if (t4 != null) t4.Wait();
+            t1?.Wait();
+            t2?.Wait();
+            t3?.Wait();
+            t4?.Wait();
         }
     }
 }
