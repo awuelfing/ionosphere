@@ -75,13 +75,19 @@ steps:
     searchFolder: '$(System.DefaultWorkingDirectory)'
 
 - task: DotNetCoreCLI@2
-  displayName: "Publish ClusterConsole"
+  displayName: "Publish ClusterTaskRunner"
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: './ClusterTaskRunner/ClusterTaskRunner.csproj'
+    arguments: '-o $(Build.ArtifactStagingDirectory)/ClusterTaskRunner'
+- task: DotNetCoreCLI@2
+  displayName: "Publish TaskRunner"
   inputs:
     command: 'publish'
     publishWebProjects: false
     projects: './ClusterConsole/ClusterConsole.csproj'
     arguments: '-o $(Build.ArtifactStagingDirectory)/ClusterConsole'
-
 - task: PowerShell@2
   displayName: "Rename ClusterConsole"
   inputs:
@@ -115,4 +121,10 @@ steps:
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'
+    publishLocation: 'Container'
+- task: PublishBuildArtifacts@1
+  displayName: "Publish ClusterTaskRunner"
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/ClusterTaskRunner'
+    ArtifactName: 'ClusterTaskRunner'
     publishLocation: 'Container'
