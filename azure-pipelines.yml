@@ -75,12 +75,12 @@ steps:
     searchFolder: '$(System.DefaultWorkingDirectory)'
 
 - task: DotNetCoreCLI@2
-  displayName: "Publish ClusterTaskRunner"
+  displayName: "Publish ClusterTaskRunnerLinux"
   inputs:
     command: 'publish'
     publishWebProjects: false
     projects: './ClusterTaskRunner/ClusterTaskRunner.csproj'
-    arguments: '-o $(Build.ArtifactStagingDirectory)/ClusterTaskRunner'
+    arguments: '-o $(Build.ArtifactStagingDirectory)/ClusterTaskRunnerLinux -r linux-x64'
 - task: DotNetCoreCLI@2
   displayName: "Publish TaskRunner"
   inputs:
@@ -123,8 +123,8 @@ steps:
     ArtifactName: 'drop'
     publishLocation: 'Container'
 - task: PublishBuildArtifacts@1
-  displayName: "Publish ClusterTaskRunner"
+  displayName: "Publish ClusterTaskRunnerLinux"
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)/ClusterTaskRunner'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/ClusterTaskRunnerLinux'
     ArtifactName: 'ClusterTaskRunner'
     publishLocation: 'Container'
