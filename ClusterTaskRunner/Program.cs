@@ -13,12 +13,22 @@ namespace ClusterTaskRunner
         private static readonly ConcurrentQueue<string> _queue = new ConcurrentQueue<string>();
         private static DbQueue? _dbQueue;
         private static DbCache? _dbCache;
+        private static DbSpots? _spots;
         private static WebAdapterClient? _webAdapterClient;
         private static ClusterClient? _clusterClient;
         private static ProgramOptions? _programOptions;
         static void ReceiveSpots(object? sender, SpotEventArgs e)
         {
-            _queue.Enqueue(e.Spottee);
+            if(_programOptions!.EnableUploader)
+            {
+                _queue.Enqueue(e.Spottee);
+            }
+            if(_programOptions!.EnableSpotUpload)
+            {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                _spots!.StoreOneAsync(e.AsSpot());
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            }
         }
         static void ReceiveDisconnect(object? sender, EventArgs e)
         {
@@ -77,12 +87,13 @@ namespace ClusterTaskRunner
             _programOptions = new ProgramOptions();
             configurationRoot.GetSection(ProgramOptions.ProgramOptionName).Bind(_programOptions);
 
-            if (_programOptions.EnableUploader || _programOptions.EnableResolver)
+            if (_programOptions.EnableUploader || _programOptions.EnableResolver || _programOptions.EnableSpotUpload)
             {
                 DbCacheOptions dbCacheOptions = new DbCacheOptions();
                 configurationRoot.GetSection(DbCacheOptions.DbCache).Bind(dbCacheOptions);
                 _dbQueue = new DbQueue(dbCacheOptions);
                 _dbCache = new DbCache(dbCacheOptions);
+                _spots = new DbSpots(dbCacheOptions);
             }
 
             if (_programOptions.EnableResolver || _programOptions.EnableKeepAlive)
