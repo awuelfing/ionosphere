@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using DxLib;
+using DXLib.RBN;
 
 namespace ClusterConnection
 {
@@ -74,6 +76,25 @@ namespace ClusterConnection
         public string FormatSpot()
         {
             return $"[{Math.Round((DateTime.Now-this.ReceivedDateTime).TotalSeconds)}s ago] {this.Spotter} saw {this.Spottee} on {this.Band}";
+        }
+        public static Spot ConvertSpot(SpotEventArgs e)
+        {
+            return new Spot()
+            {
+                Spotter = e.Spotter,
+                Frequency = e.Frequency,
+                Spottee = e.Spottee,
+                Comment = e.Comment,
+                Time = e.Time,
+                ReceivedDateTime = e.ReceivedDateTime,
+                Signal = e.Signal,
+                Band = e.Band,
+                ReportDateTime = e.ReportDateTime
+            };
+        }
+        public Spot AsSpot()
+        {
+            return ConvertSpot(this);
         }
     }
 }

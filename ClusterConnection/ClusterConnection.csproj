@@ -6,4 +6,8 @@
     <Nullable>warnings</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DXLib\DXLib.csproj" />
+  </ItemGroup>
+
 </Project>
