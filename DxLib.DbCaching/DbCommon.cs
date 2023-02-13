@@ -13,12 +13,12 @@ namespace DxLib.DbCaching
 {
     public class DbCommon<T>
     {
-        private readonly DbCacheOptions _options;
-        private MongoClientSettings? _settings;
-        private MongoClient? _mongoClient;
-        private IMongoDatabase? _mongoDatabase;
-        private IMongoCollection<T>? _mongoCollection;
-        private bool _initialized = false;
+        protected readonly DbCacheOptions _options;
+        protected MongoClientSettings? _settings;
+        protected MongoClient? _mongoClient;
+        protected IMongoDatabase? _mongoDatabase;
+        protected IMongoCollection<T>? _mongoCollection;
+        protected bool _initialized = false;
         public DbCommon(IOptions<DbCacheOptions> options)
         {
             _options = options.Value;

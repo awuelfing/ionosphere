@@ -81,7 +81,7 @@ namespace DXLib.HamQTH
                 _semaphoreSlim.Release();
             }
         }
-        public override async Task<HamQTHResult?> GetGeoAsync(string callsign)
+        public async Task<HamQTHResult?> GetGeoAsync(string callsign)
         {
             await CheckSession();
 
@@ -113,6 +113,11 @@ namespace DXLib.HamQTH
             hamQTHResult.status = "current";
             hamQTHResult!.SearchResult!.nick = hamQTHResult!.SearchResult!.nick!.ToUpper();
             return hamQTHResult;
+        }
+
+        public void Cascade(QthLookup qthLookup)
+        {
+            throw new NotImplementedException();
         }
     }
 }

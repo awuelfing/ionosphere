@@ -1,52 +1,18 @@
-﻿using DXLib.HamQTH;
-using Microsoft.Extensions.Options;
-using MongoDB.Bson.Serialization;
+﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DxLib.DbCaching
 {
-    public class DbQueue
+    public class DbQueue : DbCommon<DbQueueRecord>
     {
-        private readonly DbCacheOptions _options;
-        private MongoClientSettings? _settings;
-        private MongoClient? _mongoClient;
-        private IMongoDatabase? _mongoDatabase;
-        private IMongoCollection<DbQueueRecord>? _mongoCollection;
-        private bool _initialized = false;
-        public DbQueue(IOptions<DbCacheOptions> options)
+        public DbQueue(IOptions<DbCacheOptions> options) : base(options)
         {
-            _options = options.Value;
         }
-        public DbQueue(DbCacheOptions options)
-        {
-            _options = options;
-        }
-        static DbQueue()
-        {
-            BsonClassMap.RegisterClassMap<DbQueueRecord>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIgnoreExtraElements(true);
-            });
-        }
-        public void Initialize() // moved this stuff out of the constructor
-        {
-            _settings = MongoClientSettings.FromConnectionString(_options.ConnectionString);
-            _settings.SslSettings = new SslSettings()
-            {
-                EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12
-            };
-            _mongoClient = new MongoClient(_settings);
 
-            _mongoDatabase = _mongoClient.GetDatabase(_options.Database);
-            _mongoCollection = _mongoDatabase.GetCollection<DbQueueRecord>(_options.QueueCollection);
-            _initialized = true;
+        public DbQueue(DbCacheOptions options) : base(options)
+        {
         }
+
         public async Task EnqueueAsync(string callsign)
         {
             if (!this._initialized)

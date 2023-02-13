@@ -28,7 +28,7 @@ namespace DXLib.WebAdapter
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {options.JwtToken}");
         }
 
-        public override async Task<HamQTHResult?> GetGeoAsync(string callsign)
+        public async Task<HamQTHResult?> GetGeoAsync(string callsign)
         {
             return await _httpClient.GetFromJsonAsync<HamQTHResult?>($"/api/lookups/HamQTH/GetFullRecord?callsign={callsign}");
         }
@@ -36,6 +36,11 @@ namespace DXLib.WebAdapter
         {
             await _httpClient.GetAsync("/api/lookups/scp?callsign=W1AW");
             return;
+        }
+
+        public void Cascade(QthLookup qthLookup)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -7,22 +7,10 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace DxLib.DbCaching
 {
-    public class DbCache : QthLookup
+    public class DbCache : DbCommon<HamQTHResult>, QthLookup
     {
-        private readonly DbCacheOptions _options;
-        private MongoClientSettings? _settings;
-        private MongoClient? _mongoClient;
-        private IMongoDatabase? _mongoDatabase;
-        private IMongoCollection<HamQTHResult>? _mongoCollection;
-        private bool _initialized = false;
-        public DbCache(IOptions<DbCacheOptions> options)
-        {
-            _options = options.Value;
-        }
-        public DbCache(DbCacheOptions options)
-        {
-            _options = options;
-        }
+        public QthLookup? _qthLookup;
+
         static DbCache()
         {
             BsonClassMap.RegisterClassMap<HamQTHResult>(cm =>
@@ -31,19 +19,15 @@ namespace DxLib.DbCaching
                 cm.SetIgnoreExtraElements(true);
             });
         }
-        public void Initialize() // moved this stuff out of the constructor
-        {
-            _settings = MongoClientSettings.FromConnectionString(_options.ConnectionString);
-            _settings.SslSettings = new SslSettings()
-            {
-                EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12
-            };
-            _mongoClient = new MongoClient(_settings);
 
-            _mongoDatabase = _mongoClient.GetDatabase(_options.Database);
-            _mongoCollection = _mongoDatabase.GetCollection<HamQTHResult>(_options.Collection);
-            _initialized= true;
+        public DbCache(IOptions<DbCacheOptions> options) : base(options)
+        {
         }
+
+        public DbCache(DbCacheOptions options) : base(options)
+        {
+        }
+
 
         public async Task StoreResult(HamQTHResult result)
         {
@@ -56,7 +40,7 @@ namespace DxLib.DbCaching
             return;
         }
 
-        public override async Task<HamQTHResult?> GetGeoAsync(string callsign)
+        public async Task<HamQTHResult?> GetGeoAsync(string callsign)
         {
             if (!this._initialized)
             {
@@ -75,11 +59,11 @@ namespace DxLib.DbCaching
                 return result;
             }
 
-            if (base.Lower == null)
+            if (_qthLookup == null)
             {
                 return null;
             }
-            result = await base.Lower.GetGeoAsync(callsign);
+            result = await _qthLookup.GetGeoAsync(callsign);
 
             if(result != null)
             {
@@ -91,5 +75,6 @@ namespace DxLib.DbCaching
 
             return result;
         }
+
     }
 }
