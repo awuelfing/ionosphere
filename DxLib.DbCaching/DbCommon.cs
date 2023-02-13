@@ -29,7 +29,7 @@ namespace DxLib.DbCaching
         }
         static DbCommon()
         {
-            BsonClassMap.RegisterClassMap<Spot>(cm =>
+            BsonClassMap.RegisterClassMap<T>(cm =>
             {
                 cm.AutoMap();
                 cm.SetIgnoreExtraElements(true);
