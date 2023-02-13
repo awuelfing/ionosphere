@@ -11,15 +11,6 @@ namespace DxLib.DbCaching
     {
         public QthLookup? _qthLookup;
 
-        static DbCache()
-        {
-            BsonClassMap.RegisterClassMap<HamQTHResult>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIgnoreExtraElements(true);
-            });
-        }
-
         public DbCache(IOptions<DbCacheOptions> options) : base(options)
         {
         }
