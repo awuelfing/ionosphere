@@ -10,8 +10,8 @@ namespace ClusterTaskRunner
     {
         public const string ProgramOptionName = "ProgramOptions";
         public bool EnableClusterConnection { get; set; } = false;
-        public bool EnableUploader { get; set; } = false;
-        public bool EnableResolver { get; set; } = false;
+        public bool EnableQueueUploader { get; set; } = false;
+        public bool EnableQueueResolver { get; set; } = false;
         public int ResolverDelay { get; set; } = 5;
         public bool EnableKeepAlive { get; set; } = false;
         public int KeepAliveDelay { get; set; } = 120;

@@ -19,7 +19,7 @@ namespace ClusterTaskRunner
         private static ProgramOptions? _programOptions;
         static void ReceiveSpots(object? sender, SpotEventArgs e)
         {
-            if(_programOptions!.EnableUploader)
+            if(_programOptions!.EnableQueueUploader)
             {
                 _queue.Enqueue(e.Spottee);
             }
@@ -87,7 +87,7 @@ namespace ClusterTaskRunner
             _programOptions = new ProgramOptions();
             configurationRoot.GetSection(ProgramOptions.ProgramOptionName).Bind(_programOptions);
 
-            if (_programOptions.EnableUploader || _programOptions.EnableResolver || _programOptions.EnableSpotUpload)
+            if (_programOptions.EnableQueueUploader || _programOptions.EnableQueueResolver || _programOptions.EnableSpotUpload)
             {
                 DbCacheOptions dbCacheOptions = new DbCacheOptions();
                 configurationRoot.GetSection(DbCacheOptions.DbCache).Bind(dbCacheOptions);
@@ -96,7 +96,7 @@ namespace ClusterTaskRunner
                 _spots = new DbSpots(dbCacheOptions);
             }
 
-            if (_programOptions.EnableResolver || _programOptions.EnableKeepAlive)
+            if (_programOptions.EnableQueueResolver || _programOptions.EnableKeepAlive)
             {
                 WebAdapterOptions webAdapterOptions = new WebAdapterOptions();
                 configurationRoot.GetSection(WebAdapterOptions.WebAdapter).Bind(webAdapterOptions);
@@ -119,11 +119,11 @@ namespace ClusterTaskRunner
             }
 
             Task? t1 = null, t2 = null, t3 = null,t4 = null;
-            if (_programOptions.EnableUploader)
+            if (_programOptions.EnableQueueUploader)
             {
                 t1 = Task.Run(() => { ProcessUploads().Wait(); });
             }
-            if (_programOptions.EnableResolver)
+            if (_programOptions.EnableQueueResolver)
             {
                 t2 = Task.Run(() => { ProcessResolver().Wait(); });
             }
