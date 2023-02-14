@@ -10,9 +10,9 @@ namespace DXws.Controllers
     [Route("api/lookups/HamQTH")]
     public class HamQTHController : Controller
     {
-        private QthLookup _QthLookup;
+        private IQthLookup _QthLookup;
         private DbQueue _dbQueue;
-        public HamQTHController(QthLookup qthLookup, DbQueue dbQueue)
+        public HamQTHController(IQthLookup qthLookup, DbQueue dbQueue)
         {
             _QthLookup = qthLookup;
             _dbQueue = dbQueue;

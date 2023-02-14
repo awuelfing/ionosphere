@@ -7,9 +7,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace DxLib.DbCaching
 {
-    public class DbCache : DbCommon<HamQTHResult>, QthLookup
+    public class DbCache : DbCommon<HamQTHResult>, IQthLookup
     {
-        public QthLookup? _qthLookup;
+        public IQthLookup? _qthLookup;
 
         public DbCache(IOptions<DbCacheOptions> options) : base(options)
         {
@@ -31,7 +31,7 @@ namespace DxLib.DbCaching
             return;
         }
 
-        public async Task<HamQTHResult?> GetGeoAsync(string callsign)
+        public async Task<HamQTHResult?> GetGeoAsync(string callsign, bool resolveDeeper = true)
         {
             if (!this._initialized)
             {
@@ -50,7 +50,7 @@ namespace DxLib.DbCaching
                 return result;
             }
 
-            if (_qthLookup == null)
+            if (_qthLookup == null || !resolveDeeper)
             {
                 return null;
             }

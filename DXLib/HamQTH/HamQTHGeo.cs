@@ -14,7 +14,7 @@ using System.Xml.Serialization;
 
 namespace DXLib.HamQTH
 {
-    public class HamQTHGeo : QthLookup
+    public class HamQTHGeo : IQthLookup
     {
         private readonly HamQTHOptions _options;
         private static string _sessionID = string.Empty;
@@ -81,7 +81,7 @@ namespace DXLib.HamQTH
                 _semaphoreSlim.Release();
             }
         }
-        public async Task<HamQTHResult?> GetGeoAsync(string callsign)
+        public async Task<HamQTHResult?> GetGeoAsync(string callsign, bool resolveDeeper = true)
         {
             await CheckSession();
 
@@ -115,7 +115,7 @@ namespace DXLib.HamQTH
             return hamQTHResult;
         }
 
-        public void Cascade(QthLookup qthLookup)
+        public void Cascade(IQthLookup qthLookup)
         {
             throw new NotImplementedException();
         }

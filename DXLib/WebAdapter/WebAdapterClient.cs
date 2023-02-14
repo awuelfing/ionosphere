@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DXLib.WebAdapter
 {
-    public class WebAdapterClient : QthLookup
+    public class WebAdapterClient : IQthLookup
     {
         private static HttpClient _httpClient;
         
@@ -31,7 +31,7 @@ namespace DXLib.WebAdapter
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {options.JwtToken}");
         }
 
-        public async Task<HamQTHResult?> GetGeoAsync(string callsign)
+        public async Task<HamQTHResult?> GetGeoAsync(string callsign, bool LookLower = true)
         {
             return await _httpClient.GetFromJsonAsync<HamQTHResult?>($"/api/lookups/HamQTH/GetFullRecord?callsign={callsign}");
         }

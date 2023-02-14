@@ -1,6 +1,6 @@
 ﻿namespace DXLib.HamQTH
 {
-    public interface QthLookup
+    public interface IQthLookup
     {
 /*        public HamQTHResult? GetGeo(string callsign)
         {
@@ -8,7 +8,7 @@
             t.Wait();
             return t.Result;
         }*/
-        public abstract Task<HamQTHResult?> GetGeoAsync(string callsign);
+        public abstract Task<HamQTHResult?> GetGeoAsync(string callsign,bool resolveDeeper = true);
 
     }
 }

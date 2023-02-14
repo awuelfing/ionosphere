@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using DXLib.WebAdapter;
 using DXLib.HamQTH;
 using System.Diagnostics;
+using Amazon.Runtime.Internal.Util;
 
 namespace ClusterTaskRunner
 {
@@ -12,7 +13,6 @@ namespace ClusterTaskRunner
     {
         private static readonly ConcurrentQueue<string> _localQueue = new ConcurrentQueue<string>();
         private static readonly Dictionary<string,int> _localAggregatedQueue= new Dictionary<string,int>();
-        private static DbCache? _dbCache;
         private static WebAdapterClient? _webAdapterClient;
         private static ClusterClient? _clusterClient;
         private static ProgramOptions? _programOptions;
@@ -41,6 +41,7 @@ namespace ClusterTaskRunner
             {
                 if (_localQueue.TryDequeue(out Callsign))
                 {
+                    Console.Write("Pushing");
                     if(_localAggregatedQueue.ContainsKey(Callsign))
                     {
                         _localAggregatedQueue[Callsign]++;
@@ -53,12 +54,15 @@ namespace ClusterTaskRunner
 
                 if((DateTime.Now - lastQueueUpload).TotalMilliseconds > _programOptions!.QueueUploaderDelay)
                 {
+                    Console.WriteLine("Checking");
                     var subject = _localAggregatedQueue.OrderByDescending(kvp => kvp.Key).FirstOrDefault();
                     if(!subject.Equals(default(KeyValuePair<string,int>)))
                     {
-                        HamQTHResult? result = await _dbCache!.GetGeoAsync(subject.Key);
-                        if(result == null)
+                        Console.WriteLine("Got something");
+                        HamQTHResult? result = await _webAdapterClient!.GetGeoAsync(subject.Key,false);
+                        if (result == null)
                         {
+                            Console.WriteLine("Queueing");
                             await _webAdapterClient!.Enqueue(subject.Key, subject.Value);
                         }
                         _localAggregatedQueue.Remove(subject.Key);
@@ -96,13 +100,6 @@ namespace ClusterTaskRunner
 
             _programOptions = new ProgramOptions();
             configurationRoot.GetSection(ProgramOptions.ProgramOptionName).Bind(_programOptions);
-
-            if (_programOptions.EnableQueueUploader || _programOptions.EnableQueueResolver || _programOptions.EnableSpotUpload)
-            {
-                DbCacheOptions dbCacheOptions = new DbCacheOptions();
-                configurationRoot.GetSection(DbCacheOptions.DbCache).Bind(dbCacheOptions);
-                _dbCache = new DbCache(dbCacheOptions);
-            }
 
             WebAdapterOptions webAdapterOptions = new WebAdapterOptions();
             configurationRoot.GetSection(WebAdapterOptions.WebAdapter).Bind(webAdapterOptions);
