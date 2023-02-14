@@ -83,6 +83,8 @@ namespace DXLib.HamQTH
         }
         public async Task<HamQTHResult?> GetGeoAsync(string callsign, bool resolveDeeper = true)
         {
+            string result;
+            HamQTHResult? hamQTHResult;
             await CheckSession();
 
             _workingQS.Clear();
@@ -91,13 +93,27 @@ namespace DXLib.HamQTH
             _workingQS["prg"] = "IONOSPHERE";
 
             DateTime start = DateTime.Now;
-            string result = await _httpClient.GetStringAsync("xml.php?" + _workingQS.ToString());
-            Debug.WriteLine($"Retrieved reponse from HamQTH in {(DateTime.Now-start).TotalMilliseconds}ms");
+            try
+            {
+                result = await _httpClient.GetStringAsync("xml.php?" + _workingQS.ToString());
+            } catch (Exception ex)
+            {
+                throw new Exception("HttpClient failure", ex);
+            }
+
+            Debug.WriteLine($"Retrieved reponse from HamQTH in {(DateTime.Now - start).TotalMilliseconds}ms");
 
             if (string.IsNullOrEmpty(result)) throw new Exception("Communication failure");
-            
-            using StringReader stringReader = new(result);
-            HamQTHResult? hamQTHResult = (HamQTHResult?)_xmlSerializer.Deserialize(stringReader);
+
+            try
+            {
+                using StringReader stringReader = new(result);
+                hamQTHResult = (HamQTHResult?)_xmlSerializer.Deserialize(stringReader);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception($"Failed to deserialize: {result??"empty"}", ex);
+            }
 
             if (hamQTHResult == null) return new HamQTHResult()
             {
@@ -111,13 +127,11 @@ namespace DXLib.HamQTH
             hamQTHResult.firstretrieved = DateTime.Now;
             hamQTHResult.lastretrieved = DateTime.Now;
             hamQTHResult.status = "current";
-            hamQTHResult!.SearchResult!.nick = hamQTHResult!.SearchResult!.nick!.ToUpper();
+
+            //hamQTHResult!.SearchResult!.nick = hamQTHResult!.SearchResult!.nick!.ToUpper();
+
             return hamQTHResult;
         }
 
-        public void Cascade(IQthLookup qthLookup)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

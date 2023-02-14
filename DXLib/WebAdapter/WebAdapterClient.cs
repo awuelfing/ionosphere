@@ -31,9 +31,9 @@ namespace DXLib.WebAdapter
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {options.JwtToken}");
         }
 
-        public async Task<HamQTHResult?> GetGeoAsync(string callsign, bool LookLower = true)
+        public async Task<HamQTHResult?> GetGeoAsync(string callsign, bool resolveDeeper = true)
         {
-            return await _httpClient.GetFromJsonAsync<HamQTHResult?>($"/api/lookups/HamQTH/GetFullRecord?callsign={callsign}");
+            return await _httpClient.GetFromJsonAsync<HamQTHResult?>($"/api/lookups/HamQTH/GetFullRecord?callsign={callsign}&LookLower={resolveDeeper}");
         }
         public async Task DoKeepAlive()
         {

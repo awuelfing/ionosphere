@@ -9,7 +9,7 @@ namespace DxLib.DbCaching
 {
     public class DbCache : DbCommon<HamQTHResult>, IQthLookup
     {
-        public IQthLookup? _qthLookup;
+        public IQthLookup? _qthLookup = null;
 
         public DbCache(IOptions<DbCacheOptions> options) : base(options)
         {

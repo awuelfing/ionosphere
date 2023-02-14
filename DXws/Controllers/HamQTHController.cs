@@ -40,9 +40,9 @@ namespace DXws.Controllers
         [HttpGet]
         [Route("GetFullRecord")]
         [Authorize(Roles = "Read")]
-        public async Task<ActionResult> GetFullRecord(string callsign)
+        public async Task<ActionResult> GetFullRecord(string callsign,bool LookLower=true)
         {
-            HamQTHResult? hamQTHResult = await _QthLookup.GetGeoAsync(callsign);
+            HamQTHResult? hamQTHResult = await _QthLookup.GetGeoAsync(callsign,LookLower);
             if (hamQTHResult != null)
             {
                 string serialized = JsonSerializer.Serialize(hamQTHResult, new JsonSerializerOptions()
