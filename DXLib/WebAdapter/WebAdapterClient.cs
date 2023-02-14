@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace DXLib.WebAdapter
@@ -33,7 +34,14 @@ namespace DXLib.WebAdapter
 
         public async Task<HamQTHResult?> GetGeoAsync(string callsign, bool resolveDeeper = true)
         {
-            return await _httpClient.GetFromJsonAsync<HamQTHResult?>($"/api/lookups/HamQTH/GetFullRecord?callsign={callsign}&LookLower={resolveDeeper}");
+            HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"/api/lookups/HamQTH/GetFullRecord?callsign={callsign}&LookLower={resolveDeeper}");
+            //return await _httpClient.GetFromJsonAsync<HamQTHResult?>($"/api/lookups/HamQTH/GetFullRecord?callsign={callsign}&LookLower={resolveDeeper}");
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                string result = await httpResponseMessage.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<HamQTHResult>(result);
+            }
+            return null;
         }
         public async Task DoKeepAlive()
         {

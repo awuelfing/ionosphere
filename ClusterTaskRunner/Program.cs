@@ -39,7 +39,6 @@ namespace ClusterTaskRunner
             {
                 if (_localQueue.TryDequeue(out Callsign))
                 {
-                    Console.Write("Pushing");
                     if(_localAggregatedQueue.ContainsKey(Callsign))
                     {
                         _localAggregatedQueue[Callsign]++;
@@ -52,15 +51,12 @@ namespace ClusterTaskRunner
 
                 if((DateTime.Now - lastQueueUpload).TotalMilliseconds > _programOptions!.QueueUploaderDelay)
                 {
-                    Console.WriteLine("Checking");
                     var subject = _localAggregatedQueue.OrderByDescending(kvp => kvp.Key).FirstOrDefault();
                     if(!subject.Equals(default(KeyValuePair<string,int>)))
                     {
-                        Console.WriteLine("Got something");
                         HamQTHResult? result = await _webAdapterClient!.GetGeoAsync(subject.Key,false);
                         if (result == null)
                         {
-                            Console.WriteLine("Queueing");
                             await _webAdapterClient!.Enqueue(subject.Key, subject.Value);
                         }
                         _localAggregatedQueue.Remove(subject.Key);
