@@ -58,10 +58,10 @@ namespace DXws.Controllers
             }
         }
         [HttpGet]
-        [Route("Queue")]
-        public async Task<ActionResult> Queue(string callsign)
+        [Route("Enqueue")]
+        public async Task<ActionResult> Queue(string callsign,int count)
         {
-            await _dbQueue.EnqueueAsync(callsign);
+            await _dbQueue.EnqueueAsync(callsign,count);
             return Ok();
         }
         [HttpGet]

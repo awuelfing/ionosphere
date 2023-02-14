@@ -10,7 +10,8 @@ namespace ClusterTaskRunner
 {
     internal class Program
     {
-        private static readonly ConcurrentQueue<string> _queue = new ConcurrentQueue<string>();
+        private static readonly ConcurrentQueue<string> _localQueue = new ConcurrentQueue<string>();
+        private static readonly Dictionary<string,int> _localAggregatedQueue= new Dictionary<string,int>();
         private static DbQueue? _dbQueue;
         private static DbCache? _dbCache;
         private static DbSpots? _spots;
@@ -21,7 +22,7 @@ namespace ClusterTaskRunner
         {
             if(_programOptions!.EnableQueueUploader)
             {
-                _queue.Enqueue(e.Spottee);
+                _localQueue.Enqueue(e.Spottee);
             }
             if(_programOptions!.EnableSpotUpload)
             {
@@ -34,20 +35,37 @@ namespace ClusterTaskRunner
         {
             Console.WriteLine("Disconnected.");
         }
-        static async Task ProcessUploads()
+        static async Task PumpQueue()
         {
+            DateTime lastQueueUpload = DateTime.Now;
             string? Callsign = string.Empty;
             while (true)
             {
-                if (_queue.TryDequeue(out Callsign))
+                if (_localQueue.TryDequeue(out Callsign))
                 {
-                    HamQTHResult? result = await _dbCache!.GetGeoAsync(Callsign);
-                    if (result == null)
+                    if(_localAggregatedQueue.ContainsKey(Callsign))
                     {
-                        // .Wait() is for rate limiting, remove if this gets clogged.
-                        // Make this an option?
-                        await _dbQueue!.EnqueueAsync(Callsign);
+                        _localAggregatedQueue[Callsign]++;
                     }
+                    else
+                    {
+                        _localAggregatedQueue[Callsign] = 1;
+                    }
+                }
+
+                if((DateTime.Now - lastQueueUpload).TotalMilliseconds > _programOptions!.QueueUploaderDelay)
+                {
+                    var subject = _localAggregatedQueue.OrderByDescending(kvp => kvp.Key).FirstOrDefault();
+                    if(!subject.Equals(default(KeyValuePair<string,int>)))
+                    {
+                        HamQTHResult? result = await _dbCache!.GetGeoAsync(subject.Key);
+                        if(result == null)
+                        {
+                            await _webAdapterClient!.Enqueue(subject.Key, subject.Value);
+                        }
+                        _localAggregatedQueue.Remove(subject.Key);
+                    }
+                    lastQueueUpload= DateTime.Now;
                 }
             }
         }
@@ -55,18 +73,12 @@ namespace ClusterTaskRunner
         {
             while (true)
             {
-                await Task.Delay(_programOptions!.ResolverDelay*1000);
-                DbQueueRecord? record = await _dbQueue!.DequeueAsync(false);
-                if (record != null)
+                await Task.Delay(_programOptions!.ResolverDelay);
+                string? s = await _webAdapterClient!.Dequeue();
+                if(s != null)
                 {
-                    Debug.WriteLine($"Attempting to resolve {record.Callsign}");
-                    HamQTHResult? result = await _webAdapterClient!.GetGeoAsync(record.Callsign);
-
-                    if (result!.SearchResult != null)
-                    {
-                        Debug.WriteLine($"Resolved {result.SearchResult.callsign}");
-                    }
-                }
+                    await _webAdapterClient.GetGeoAsync(s);
+                }    
             }
         }
         static async Task ProcessKeepAlive()
@@ -74,7 +86,7 @@ namespace ClusterTaskRunner
             while(true)
             {
                 await _webAdapterClient!.DoKeepAlive();
-                await Task.Delay(_programOptions!.KeepAliveDelay *1000);
+                await Task.Delay(_programOptions!.KeepAliveDelay);
             }
         }
         static void Main(string[] args)
@@ -121,7 +133,7 @@ namespace ClusterTaskRunner
             Task? t1 = null, t2 = null, t3 = null,t4 = null;
             if (_programOptions.EnableQueueUploader)
             {
-                t1 = Task.Run(() => { ProcessUploads().Wait(); });
+                t1 = Task.Run(() => { PumpQueue().Wait(); });
             }
             if (_programOptions.EnableQueueResolver)
             {

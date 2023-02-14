@@ -1,9 +1,11 @@
-﻿using DXLib.HamQTH;
+﻿using DxLib.DbCaching;
+using DXLib.HamQTH;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Json;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -37,10 +39,16 @@ namespace DXLib.WebAdapter
             await _httpClient.GetAsync("/api/lookups/scp?callsign=W1AW");
             return;
         }
-
-        public void Cascade(QthLookup qthLookup)
+        //
+        public async Task Enqueue(string callsign,int count)
         {
-            throw new NotImplementedException();
+            await _httpClient.GetAsync($"api/lookups/HamQTH/Enqueue?callsign={callsign}&count={count}");
         }
+        public async Task<string?> Dequeue()
+        {
+            var QthRecord = await _httpClient.GetFromJsonAsync<DbQueueRecord>("/api/lookups/HamQTH/Dequeue");
+            return QthRecord?.Callsign;
+        }
+
     }
 }

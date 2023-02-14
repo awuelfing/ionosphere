@@ -13,7 +13,7 @@ namespace DxLib.DbCaching
         {
         }
 
-        public async Task EnqueueAsync(string callsign)
+        public async Task EnqueueAsync(string callsign, int count)
         {
             if (!this._initialized)
             {
@@ -25,13 +25,16 @@ namespace DxLib.DbCaching
             var result = await results.FirstOrDefaultAsync();
             if (result == null)
             {
-                DbQueueRecord record = new DbQueueRecord() { Callsign = callsign };
+                DbQueueRecord record = new DbQueueRecord() {
+                    Callsign = callsign,
+                    RequestedCount = count
+                };
                 await _mongoCollection!.InsertOneAsync(record);
                 return;
             }
             else
             {
-                var update = Builders<DbQueueRecord>.Update.Set("RequestedCount", result.RequestedCount+1);
+                var update = Builders<DbQueueRecord>.Update.Set("RequestedCount", result.RequestedCount+count);
                 await _mongoCollection!.UpdateOneAsync(filter, update);
             }
             return;
