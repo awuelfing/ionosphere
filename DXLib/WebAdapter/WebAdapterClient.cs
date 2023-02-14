@@ -1,5 +1,6 @@
 ﻿using DxLib.DbCaching;
 using DXLib.HamQTH;
+using DXLib.RBN;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -48,6 +49,10 @@ namespace DXLib.WebAdapter
         {
             var QthRecord = await _httpClient.GetFromJsonAsync<DbQueueRecord>("/api/lookups/HamQTH/Dequeue");
             return QthRecord?.Callsign;
+        }
+        public async Task PostSpotAsync(Spot spot)
+        {
+            await _httpClient.PostAsJsonAsync("/api/spots", spot);
         }
 
     }

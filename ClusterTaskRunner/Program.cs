@@ -12,9 +12,7 @@ namespace ClusterTaskRunner
     {
         private static readonly ConcurrentQueue<string> _localQueue = new ConcurrentQueue<string>();
         private static readonly Dictionary<string,int> _localAggregatedQueue= new Dictionary<string,int>();
-        private static DbQueue? _dbQueue;
         private static DbCache? _dbCache;
-        private static DbSpots? _spots;
         private static WebAdapterClient? _webAdapterClient;
         private static ClusterClient? _clusterClient;
         private static ProgramOptions? _programOptions;
@@ -27,7 +25,7 @@ namespace ClusterTaskRunner
             if(_programOptions!.EnableSpotUpload)
             {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                _spots!.StoreOneAsync(e.AsSpot());
+                _webAdapterClient!.PostSpotAsync(e.AsSpot());
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
         }
@@ -103,17 +101,12 @@ namespace ClusterTaskRunner
             {
                 DbCacheOptions dbCacheOptions = new DbCacheOptions();
                 configurationRoot.GetSection(DbCacheOptions.DbCache).Bind(dbCacheOptions);
-                _dbQueue = new DbQueue(dbCacheOptions);
                 _dbCache = new DbCache(dbCacheOptions);
-                _spots = new DbSpots(dbCacheOptions);
             }
 
-            if (_programOptions.EnableQueueResolver || _programOptions.EnableKeepAlive)
-            {
-                WebAdapterOptions webAdapterOptions = new WebAdapterOptions();
-                configurationRoot.GetSection(WebAdapterOptions.WebAdapter).Bind(webAdapterOptions);
-                _webAdapterClient = new WebAdapterClient(webAdapterOptions);
-            }
+            WebAdapterOptions webAdapterOptions = new WebAdapterOptions();
+            configurationRoot.GetSection(WebAdapterOptions.WebAdapter).Bind(webAdapterOptions);
+             _webAdapterClient = new WebAdapterClient(webAdapterOptions);
 
             if (_programOptions.EnableClusterConnection)
             {
