@@ -9,7 +9,7 @@ namespace DXLib.Cohort
     public class CohortRecord
     {
         public string Username { get; set; } = string.Empty;
-        public IEnumerable<string>? Cohorts { get; set; }
+        public IEnumerable<string> Cohorts { get; set; } = Enumerable.Empty<string>();
                 
     }
 }

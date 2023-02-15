@@ -59,5 +59,31 @@ namespace DxLib.DbCaching
 
             return;
         }
+        public async Task<T> Get(FilterDefinition<T> filter)
+        {
+            if (!this._initialized)
+            {
+                this.Initialize();
+            }
+            var results = await _mongoCollection!.FindAsync(filter);
+            return await results.FirstOrDefaultAsync();
+        }
+        public async Task Update(FilterDefinition<T> filter,T t)
+        {
+            if (!this._initialized)
+            {
+                this.Initialize();
+            }
+            await _mongoCollection!.DeleteManyAsync(filter);
+            await _mongoCollection!.InsertOneAsync(t);
+        }
+        public async Task Delete(FilterDefinition<T> filter)
+        {
+            if (!this._initialized)
+            {
+                this.Initialize();
+            }
+            await _mongoCollection!.DeleteManyAsync(filter);
+        }
     }
 }

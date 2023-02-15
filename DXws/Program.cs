@@ -44,6 +44,7 @@ namespace DXws
             builder.Services.AddScoped<IQthLookup>(s => new DbCache(s.GetRequiredService<IOptions<DbCacheOptions>>()) { _qthLookup = s.GetRequiredService<HamQTHGeo>() });
             builder.Services.AddScoped<DbQueue, DbQueue>();
             builder.Services.AddScoped<DbSpots, DbSpots>();
+            builder.Services.AddScoped<DbCohort,DbCohort>();
 
             var app = builder.Build();
 
