@@ -19,6 +19,11 @@ namespace DxLib.DbCaching
         public DbSpots(DbCacheOptions options) : base(options)
         {
         }
+        public async Task<List<Spot>> GetAllSpotsAsync(string Callsign)
+        {
+            var filter = Builders<Spot>.Filter.Eq("Spottee", Callsign.ToUpper());
+            return await base.GetManyAsync(filter);
+        }
 
     }
 }

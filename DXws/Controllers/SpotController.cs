@@ -32,5 +32,11 @@ namespace DXws.Controllers
             await _dbSpots.DeleteAllAsync();
             return NoContent(); 
         }
+        [HttpGet]
+        [Route("GetAll")]
+        public async Task<ActionResult<IEnumerable<Spot>>> GetAll(string callsign)
+        {
+            return await _dbSpots.GetAllSpotsAsync(callsign);
+        }
     }
 }

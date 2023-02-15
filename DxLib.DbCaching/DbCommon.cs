@@ -68,7 +68,7 @@ namespace DxLib.DbCaching
             var results = await _mongoCollection!.FindAsync(filter);
             return await results.FirstOrDefaultAsync();
         }
-        public async Task<IEnumerable<T>> GetManyAsync(FilterDefinition<T> filter)
+        public async Task<List<T>> GetManyAsync(FilterDefinition<T> filter)
         {
             if (!this._initialized)
             {
