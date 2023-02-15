@@ -19,34 +19,13 @@ namespace DxLib.DbCaching
         {
         }
 
-
-        public async Task StoreResult(HamQTHResult result)
-        {
-            if (!this._initialized)
-            {
-                this.Initialize();
-            }
-            await _mongoCollection!.InsertOneAsync(result);
-
-            return;
-        }
-
         public async Task<HamQTHResult?> GetGeoAsync(string callsign, bool resolveDeeper = true)
         {
-            if (!this._initialized)
-            {
-                this.Initialize();
-            }
-
-            DateTime start = DateTime.UtcNow;
             var filter = Builders<HamQTHResult>.Filter.Eq("callsign", callsign.ToUpper());
-            var results = await _mongoCollection.FindAsync(filter);
-            var result = await results.FirstOrDefaultAsync();
-            Debug.WriteLine($"DB cache checked in {(start - DateTime.Now).TotalMilliseconds}ms");
+            var result = await base.GetOneAsync(filter);
 
             if (result != null)
             {
-                Debug.WriteLine("DB cache hit");
                 return result;
             }
 
@@ -58,9 +37,7 @@ namespace DxLib.DbCaching
 
             if(result != null)
             {
-                start= DateTime.Now;
-                await StoreResult(result);
-                Debug.WriteLine($"Stored result from lower provider in {(DateTime.Now - start).TotalMilliseconds}ms");
+                await base.StoreOneAsync(result);
                 return result;
             }
 

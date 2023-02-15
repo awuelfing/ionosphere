@@ -29,7 +29,7 @@ namespace DXws.Controllers
         [Route("DeleteAll")]
         public async Task<IActionResult> DeleteAll()
         {
-            await _dbSpots.DeleteAll();
+            await _dbSpots.DeleteAllAsync();
             return NoContent(); 
         }
     }

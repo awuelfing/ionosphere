@@ -23,24 +23,24 @@ namespace DxLib.DbCaching
         public async Task<CohortRecord?> Get(string Username)
         {
             var filter = Builders<CohortRecord>.Filter.Eq("Username", Username);
-            return await base.Get(filter);
+            return await base.GetOneAsync(filter);
         }
         public async Task Update(CohortRecord cohortRecord)
         {
             var filter = Builders<CohortRecord>.Filter.Eq("Username", cohortRecord.Username);
-            await base.Update(filter,cohortRecord);
+            await base.UpdateAsync(filter,cohortRecord);
             return;
         }
         public async Task Delete(CohortRecord cohortRecord)
         {
             var filter = Builders<CohortRecord>.Filter.Eq("Username", cohortRecord.Username);
-            await base.Delete(filter);
+            await base.DeleteAsync(filter);
             return;
         }
         public async Task Delete(string Username)
         {
             var filter = Builders<CohortRecord>.Filter.Eq("Username", Username);
-            await base.Delete(filter);
+            await base.DeleteAsync(filter);
             return;
         }
     }

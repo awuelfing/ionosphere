@@ -47,7 +47,7 @@ namespace DXLib.WebAdapter
         }
         public async Task DoKeepAlive()
         {
-            await _httpClient.GetAsync("/api/lookups/scp?callsign=W1AW");
+            await _httpClient.GetAsync("");
             return;
         }
         public async Task Enqueue(string callsign,int count)
@@ -70,7 +70,7 @@ namespace DXLib.WebAdapter
             {
                 result = await _httpClient.GetFromJsonAsync<CohortRecord>($"/api/cohort/{Username}");
             }
-            catch(HttpRequestException ex)
+            catch (HttpRequestException)
             {
                 result = new CohortRecord() { Username = Username };
             }

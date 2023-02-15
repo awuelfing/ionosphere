@@ -59,7 +59,7 @@ namespace DxLib.DbCaching
 
             return;
         }
-        public async Task<T> Get(FilterDefinition<T> filter)
+        public async Task<T> GetOneAsync(FilterDefinition<T> filter)
         {
             if (!this._initialized)
             {
@@ -68,7 +68,16 @@ namespace DxLib.DbCaching
             var results = await _mongoCollection!.FindAsync(filter);
             return await results.FirstOrDefaultAsync();
         }
-        public async Task Update(FilterDefinition<T> filter,T t)
+        public async Task<IEnumerable<T>> GetManyAsync(FilterDefinition<T> filter)
+        {
+            if (!this._initialized)
+            {
+                this.Initialize();
+            }
+            var results = await _mongoCollection!.FindAsync(filter);
+            return await results.ToListAsync();
+        }
+        public async Task UpdateAsync(FilterDefinition<T> filter,T t)
         {
             if (!this._initialized)
             {
@@ -77,7 +86,7 @@ namespace DxLib.DbCaching
             await _mongoCollection!.DeleteManyAsync(filter);
             await _mongoCollection!.InsertOneAsync(t);
         }
-        public async Task Delete(FilterDefinition<T> filter)
+        public async Task DeleteAsync(FilterDefinition<T> filter)
         {
             if (!this._initialized)
             {
@@ -85,13 +94,13 @@ namespace DxLib.DbCaching
             }
             await _mongoCollection!.DeleteManyAsync(filter);
         }
-        public async Task DeleteAll()
+        public async Task DeleteAllAsync()
         {
             if (!this._initialized)
             {
                 this.Initialize();
             }
-            if (typeof(T).Name != "Spot")
+            if (typeof(T).Name != nameof(Spot))
             {
                 throw new Exception("Maybe not...");
             }

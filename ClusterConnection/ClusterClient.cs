@@ -50,7 +50,7 @@ namespace ClusterConnection
                     var line = _sr.ReadLine();
                     //Console.WriteLine(line);
                     Debug.WriteLine(line);
-                    MatchCollection spotCollection = Regex.Matches(line ?? "", _spotRegex, RegexOptions.Multiline);
+                     MatchCollection spotCollection = Regex.Matches(line ?? "", _spotRegex, RegexOptions.Multiline);
 
                     foreach (Match spotMatch in spotCollection)
                     {
