@@ -20,10 +20,10 @@ namespace DXws.Controllers
             _dbCohort = dbCohort;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get(string username)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(string id)
         {
-            var result = await _dbCohort.Get(username);
+            var result = await _dbCohort.Get(id);
             if(result == null)
             {
                 return NotFound();

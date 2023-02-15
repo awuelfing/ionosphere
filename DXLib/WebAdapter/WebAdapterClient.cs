@@ -1,4 +1,5 @@
 ﻿using DxLib.DbCaching;
+using DXLib.Cohort;
 using DXLib.HamQTH;
 using DXLib.RBN;
 using Microsoft.Extensions.Options;
@@ -7,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -48,7 +50,6 @@ namespace DXLib.WebAdapter
             await _httpClient.GetAsync("/api/lookups/scp?callsign=W1AW");
             return;
         }
-        //
         public async Task Enqueue(string callsign,int count)
         {
             await _httpClient.GetAsync($"api/lookups/HamQTH/Enqueue?callsign={callsign}&count={count}");
@@ -62,6 +63,18 @@ namespace DXLib.WebAdapter
         {
             await _httpClient.PostAsJsonAsync("/api/spots", spot);
         }
-
+        public async Task<CohortRecord?> GetCohort(string Username)
+        {
+            CohortRecord? result;
+            try
+            {
+                result = await _httpClient.GetFromJsonAsync<CohortRecord>($"/api/cohort/{Username}");
+            }
+            catch(HttpRequestException ex)
+            {
+                result = new CohortRecord() { Username = Username };
+            }
+            return result;
+        }
     }
 }

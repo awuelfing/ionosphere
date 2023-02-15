@@ -17,5 +17,6 @@ namespace ClusterTaskRunner
         public bool EnableKeepAlive { get; set; } = false;
         public int KeepAliveDelay { get; set; } = 120000;
         public bool EnableSpotUpload { get; set; } = false;
+        public string[] Users { get; set; } = { };
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using DXLib.WebAdapter;
 using DXLib.HamQTH;
 using System.Diagnostics;
+using DXLib.Cohort;
 
 namespace ClusterTaskRunner
 {
@@ -14,13 +15,14 @@ namespace ClusterTaskRunner
         private static WebAdapterClient? _webAdapterClient;
         private static ClusterClient? _clusterClient;
         private static ProgramOptions? _programOptions;
+        private static List<string> _cohorts = new List<string>();
         static void ReceiveSpots(object? sender, SpotEventArgs e)
         {
             if(_programOptions!.EnableQueueUploader)
             {
                 _localQueue.Enqueue(e.Spottee);
             }
-            if(_programOptions!.EnableSpotUpload)
+            if(_programOptions!.EnableSpotUpload && _cohorts.Any(x => x == e.Spottee))
             {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 _webAdapterClient!.PostSpotAsync(e.AsSpot());
@@ -85,7 +87,7 @@ namespace ClusterTaskRunner
                 await Task.Delay(_programOptions!.KeepAliveDelay);
             }
         }
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             IConfigurationRoot configurationRoot = new ConfigurationBuilder()
                .SetBasePath(AppContext.BaseDirectory)
@@ -98,6 +100,20 @@ namespace ClusterTaskRunner
             WebAdapterOptions webAdapterOptions = new WebAdapterOptions();
             configurationRoot.GetSection(WebAdapterOptions.WebAdapter).Bind(webAdapterOptions);
              _webAdapterClient = new WebAdapterClient(webAdapterOptions);
+
+            if(_programOptions.EnableSpotUpload)
+            {
+                var users = _programOptions.Users.ToList();
+                foreach(string s in users)
+                {
+                    var cohorts = await _webAdapterClient.GetCohort(s);
+                    foreach (string cohort in cohorts!.Cohorts)
+                    {
+                        Console.WriteLine(cohort);
+                        _cohorts.Add(cohort);
+                    }
+                }
+            }
 
             if (_programOptions.EnableClusterConnection)
             {
@@ -114,28 +130,26 @@ namespace ClusterTaskRunner
                 _clusterClient.Disconnected += ReceiveDisconnect;
             }
 
-            Task? t1 = null, t2 = null, t3 = null,t4 = null;
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             if (_programOptions.EnableQueueUploader)
             {
-                t1 = Task.Run(() => { PumpQueue().Wait(); });
+                PumpQueue();
             }
             if (_programOptions.EnableQueueResolver)
             {
-                t2 = Task.Run(() => { ProcessResolver().Wait(); });
+                ProcessResolver();
             }
             if (_programOptions.EnableClusterConnection)
             {
-                t3 = Task.Run(() => { _clusterClient!.ProcessSpots(); });
+                Task.Run(() => { _clusterClient!.ProcessSpots(); });
             }
             if(_programOptions.EnableKeepAlive)
             {
-                t4 = Task.Run(() => { ProcessKeepAlive().Wait(); });
+                ProcessKeepAlive();
             }
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
-            t1?.Wait();
-            t2?.Wait();
-            t3?.Wait();
-            t4?.Wait();
+            await Task.Delay(-1);
         }
     }
 }

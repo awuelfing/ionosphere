@@ -85,5 +85,21 @@ namespace DxLib.DbCaching
             }
             await _mongoCollection!.DeleteManyAsync(filter);
         }
+        public async Task DeleteAll()
+        {
+            if (!this._initialized)
+            {
+                this.Initialize();
+            }
+            if (typeof(T).Name != "Spot")
+            {
+                throw new Exception("Maybe not...");
+            }
+            await _mongoCollection!.DeleteManyAsync(Builders<T>.Filter.Empty);
+            if (!this._initialized)
+            {
+                this.Initialize();
+            }
+        }
     }
 }

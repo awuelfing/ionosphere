@@ -25,5 +25,12 @@ namespace DXws.Controllers
             await _dbSpots.StoreOneAsync(spot);
             return Ok();
         }
+        [HttpGet]
+        [Route("DeleteAll")]
+        public async Task<IActionResult> DeleteAll()
+        {
+            await _dbSpots.DeleteAll();
+            return NoContent(); 
+        }
     }
 }
