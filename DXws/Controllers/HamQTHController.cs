@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace DXws.Controllers
 {
     [Route("api/lookups/HamQTH")]
+    [Authorize(Roles = "Read")]
     public class HamQTHController : Controller
     {
         private IQthLookup _QthLookup;
@@ -18,7 +19,6 @@ namespace DXws.Controllers
             _dbQueue = dbQueue;
         }
         [HttpGet]
-        [Authorize(Roles = "Read")]
         public async Task<ActionResult> Get(string callsign)
         {
             HamQTHResult? hamQTHResult = await _QthLookup.GetGeoAsync(callsign);
@@ -39,7 +39,6 @@ namespace DXws.Controllers
         }
         [HttpGet]
         [Route("GetFullRecord")]
-        [Authorize(Roles = "Read")]
         public async Task<ActionResult> GetFullRecord(string callsign,bool LookLower=true)
         {
             HamQTHResult? hamQTHResult = await _QthLookup.GetGeoAsync(callsign,LookLower);

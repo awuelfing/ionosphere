@@ -1,13 +1,16 @@
 ﻿using DxLib.DbCaching;
 using DXLib.RBN;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Collections.Generic;
+using System.Data;
 
 namespace DXws.Controllers
 {
     [Route("/api/spots")]
     [ApiController]
+    [Authorize(Roles = "Read")]
     public class SpotController : Controller
     {
         private readonly DbSpots _dbSpots;
