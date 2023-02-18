@@ -26,7 +26,7 @@ namespace ClusterConnection
             Spottee = spottee;
             Comment = comment;
             Time = time;
-            ReceivedDateTime = DateTime.Now;
+            ReceivedDateTime = DateTime.UtcNow;
         }
         public int Signal
         { 

@@ -53,16 +53,12 @@ namespace DXws.Controllers
             var cohorts = await _dbCohort.Get(Username);
             if (cohorts == null) return NotFound();
 
-            foreach(string s in cohorts!.Cohorts)
+            var spots = await _dbSpots.GetAllCohortSpotsAsync(cohorts.Cohorts.ToArray());
+            foreach(string call in spots.DistinctBy(x=>x.Spottee).Select(x=>x.Spottee))
             {
-                var spots = await _dbSpots.GetAllSpotsAsync(s);
-                var bands = spots.DistinctBy(x => x.Band).Select(x => x.Band).ToList();
-                if (bands.Count > 0)
-                {
-                    results.Add(s, bands);
-                }
+                var bands = spots.Where(x => x.Spottee.Contains(call)).DistinctBy(x => x.Band).Select(x => x.Band);
+                results.Add(call, bands.ToList());
             }
-
 
             return Ok(results);
         }

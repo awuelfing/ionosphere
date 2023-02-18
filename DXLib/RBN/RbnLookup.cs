@@ -15,5 +15,27 @@ namespace DXLib.RBN
             if (result == null) { return string.Empty; }
             return result.Split(',')[1];
         }
+        public static async Task<RBNNode?> GetRBNNode(string input)
+        {
+            string[] RbnFile = await File.ReadAllLinesAsync("RBN.csv");
+            string? result = RbnFile.Where(x => x.StartsWith(input)).FirstOrDefault();
+            if (string.IsNullOrEmpty(result)) return null;
+
+            string[] splitResult = result.Split(",");
+
+            if (splitResult.Count() != 6) return null;
+
+            return new RBNNode()
+            {
+                Station = splitResult[0],
+                MaidenheadLocator = splitResult[1],
+                PrimaryPrefix = splitResult[2],
+                Continent = splitResult[3],
+                CQZone = splitResult[4],
+                ITUZone = splitResult[5]
+            };
+
+
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DXLib.CtyDat;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -19,5 +20,7 @@ namespace DXLib.RBN
         public int Signal { get; set; } = 0;
         public DateTimeOffset? ReportDateTime { get; set; } = DateTime.UtcNow;
         public string Band { get; set; } = string.Empty;
+        public RBNNode? SpotterStationInfo { get; set; }
+        public CtyResult? SpottedStationInfo { get; set; }
     }
 }
