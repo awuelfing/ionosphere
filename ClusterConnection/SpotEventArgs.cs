@@ -98,6 +98,7 @@ namespace ClusterConnection
                 Time = e.Time,
                 ReceivedDateTime = e.ReceivedDateTime,
                 Signal = e.Signal,
+                WPM = e.WPM,
                 Band = e.Band,
                 ReportDateTime = e.ReportDateTime
             };

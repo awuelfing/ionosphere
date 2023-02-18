@@ -18,6 +18,7 @@ namespace DXLib.RBN
         public string Time { get; set; } = string.Empty;
         public DateTime ReceivedDateTime { get; set; }
         public int Signal { get; set; } = 0;
+        public int WPM { get; set; } = 0;
         public DateTimeOffset? ReportDateTime { get; set; } = DateTime.UtcNow;
         public string Band { get; set; } = string.Empty;
         public RBNNode? SpotterStationInfo { get; set; }
