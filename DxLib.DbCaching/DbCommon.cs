@@ -105,10 +105,6 @@ namespace DxLib.DbCaching
                 throw new Exception("Maybe not...");
             }
             await _mongoCollection!.DeleteManyAsync(Builders<T>.Filter.Empty);
-            if (!this._initialized)
-            {
-                this.Initialize();
-            }
         }
     }
 }

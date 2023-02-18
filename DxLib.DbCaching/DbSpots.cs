@@ -31,7 +31,7 @@ namespace DxLib.DbCaching
         }
         public async Task<List<Spot>> GetAllCohortSpotsAsync(string[] calls,int Lookback)
         {
-            DateTime dateTime = DateTime.Now.AddMinutes(-Lookback);
+            DateTime dateTime = DateTime.UtcNow.AddMinutes(-Lookback);
             var filter = Builders<Spot>.Filter.In("Spottee", calls) &
                 Builders<Spot>.Filter.Gt("ReceivedDateTime", dateTime);
             return await base.GetManyAsync(filter);

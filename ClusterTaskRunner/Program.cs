@@ -28,6 +28,21 @@ namespace ClusterTaskRunner
             {
                 Spot spot = e.AsSpot();
                 spot.SpotterStationInfo = RbnLookup.GetRBNNodeSync(spot.Spotter);
+                if(spot.SpotterStationInfo == null)
+                {
+                    CtyResult ctyResult = Cty.MatchCall(spot.Spotter);
+                    if( ctyResult != null )
+                    {
+                        spot.SpotterStationInfo = new RBNNode()
+                        {
+                            Continent = ctyResult.Continent,
+                            PrimaryPrefix = ctyResult.PrimaryPrefix,
+                            CQZone = ctyResult.CQZone,
+                            ITUZone = ctyResult.ITUZone,
+                            Station = ctyResult.Callsign
+                        };
+                    }
+                }
                 spot.SpottedStationInfo = Cty.MatchCall(spot.Spottee);
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -115,7 +130,6 @@ namespace ClusterTaskRunner
                     var cohorts = await _webAdapterClient.GetCohort(s);
                     foreach (string cohort in cohorts!.Cohorts)
                     {
-                        Console.WriteLine(cohort);
                         _cohorts.Add(cohort);
                     }
                 }
