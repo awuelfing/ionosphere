@@ -12,7 +12,8 @@ namespace ClusterConnection
 {
     public class SpotEventArgs : EventArgs
     {
-        private static string _signalExtraction = @"(?<Signal>\d+)\sdB";
+        private const string _signalExtraction = @"(?<Signal>\d+)\sdB";
+        private const string _wpmExtraction = @"(?<WPM>\d{2})\sWPM";
         public string Spotter { get; set; }
         public string Frequency { get; set; }
         public string Spottee { get; set; }
@@ -72,6 +73,15 @@ namespace ClusterConnection
             {
 
             }
+        }
+        public int WPM
+        {
+            get
+            {
+                Match match = Regex.Match(this.Comment, _wpmExtraction, RegexOptions.Multiline);
+                return match.Groups["WPM"].Success ? int.Parse(match.Groups["WPM"].Value) : 0;
+            }
+            set { }
         }
         public string FormatSpot()
         {
