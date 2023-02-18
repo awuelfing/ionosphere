@@ -56,5 +56,22 @@ namespace DXws.Controllers
             await _dbCohort.Delete(id);
             return NoContent();
         }
+        [HttpGet]
+        [Route("AppendOne")]
+        public async Task<IActionResult> AppendOne(string Username, string Callsign)
+        {
+            CohortRecord? cohortRecord = await _dbCohort.Get(Username);
+            if (cohortRecord == null)
+            {
+                return BadRequest();
+            }
+            if(cohortRecord.Cohorts.Contains(Callsign))
+            {
+                return Ok();
+            }
+            cohortRecord.Cohorts = cohortRecord.Cohorts.Append(Callsign).ToList();
+            await _dbCohort.Update(cohortRecord);
+            return AcceptedAtAction(nameof(Post), cohortRecord);
+        }
     }
 }
