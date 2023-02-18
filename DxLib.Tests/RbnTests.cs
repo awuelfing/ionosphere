@@ -13,7 +13,7 @@ namespace DxLib.Tests
     {
         [TestMethod]
         [DataRow("KM3T", "FN42ET")]
-        [DataRow("DL1REM", "JO32PC")]
+        [DataRow("S50U", "JN66XD")]
         [DataRow("W1NT-6", "FN42LU")]
         public async Task RbnLookup_Test_Valid_Node(string input,string expected)
         {

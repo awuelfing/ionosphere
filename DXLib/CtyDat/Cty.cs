@@ -22,7 +22,7 @@ namespace DXLib.CtyDat
          * ITU zone and CQ zone from post-slashed callsigns as well, probably
          * useful in contests
          * */
-        public static CtyResult MatchCall(String callsign)
+        public static CtyResult? MatchCall(String callsign)
         {
             string matchedPrefix = string.Empty;
 
@@ -83,7 +83,7 @@ namespace DXLib.CtyDat
                 }
             }
 
-            if(matchedPrefix == string.Empty) throw new Exception("Could not match " + callsign);
+            if (matchedPrefix == string.Empty) return null;
             return(ctyResult);
         }
         public static string FormatResult(CtyResult input)

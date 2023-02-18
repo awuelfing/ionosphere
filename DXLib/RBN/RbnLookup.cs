@@ -34,8 +34,12 @@ namespace DXLib.RBN
                 CQZone = splitResult[4],
                 ITUZone = splitResult[5]
             };
-
-
+        }
+        public static RBNNode? GetRBNNodeSync(string input)
+        {
+            Task<RBNNode?> t = GetRBNNode(input);
+            t.Wait();
+            return t.Result;
         }
     }
 }

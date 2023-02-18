@@ -5,6 +5,8 @@ using DXLib.WebAdapter;
 using DXLib.HamQTH;
 using System.Diagnostics;
 using DXLib.Cohort;
+using DXLib.RBN;
+using DXLib.CtyDat;
 
 namespace ClusterTaskRunner
 {
@@ -24,8 +26,12 @@ namespace ClusterTaskRunner
             }
             if(_programOptions!.EnableSpotUpload && _cohorts.Any(x => x == e.Spottee))
             {
+                Spot spot = e.AsSpot();
+                spot.SpotterStationInfo = RbnLookup.GetRBNNodeSync(spot.Spotter);
+                spot.SpottedStationInfo = Cty.MatchCall(spot.Spottee);
+
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                _webAdapterClient!.PostSpotAsync(e.AsSpot());
+                _webAdapterClient!.PostSpotAsync(spot);
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
         }
