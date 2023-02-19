@@ -14,6 +14,7 @@ namespace ClusterConnection
         public event EventHandler<SpotEventArgs> SpotReceived;
         public event EventHandler Disconnected;
         private static readonly string _spotRegex = @"^DX de (?<Spotter>.{11})(?<Frequency>.{9})(?<Spottee>.{13})(?<Comment>.+)(?<Time>.{4})Z$";
+        private static readonly string _spotRegexNew = @"^DX\sde\s(?<Spotter>[\w-#\/]+):\s*(?<Frequency>[\d\.]+)\s+(?<Spottee>[\w\d\/]+)(?<Comment>.*)(?<Time>\d{4}Z)(\s\w{2}\d{2}){0,1}$";
         private string _server, _username;
         private int _port = 0;
         private NetworkStream _ns = null;
@@ -50,7 +51,7 @@ namespace ClusterConnection
                     var line = _sr.ReadLine();
                     //Console.WriteLine(line);
                     Debug.WriteLine(line);
-                     MatchCollection spotCollection = Regex.Matches(line ?? "", _spotRegex, RegexOptions.Multiline);
+                     MatchCollection spotCollection = Regex.Matches(line ?? "", _spotRegexNew, RegexOptions.Multiline);
 
                     foreach (Match spotMatch in spotCollection)
                     {
