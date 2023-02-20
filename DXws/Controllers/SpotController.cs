@@ -1,5 +1,6 @@
 ﻿using DxLib.DbCaching;
 using DXLib.RBN;
+using DXws.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
@@ -7,6 +8,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Net;
 
 namespace DXws.Controllers
 {
@@ -71,6 +73,82 @@ namespace DXws.Controllers
             }
 
             return Ok(results);
+        }
+        [HttpGet]
+        [Route("GetAllCohortSpotsDetailed")]
+        public async Task<ActionResult> GetAllCohortSpotsDetailed(string Username)
+        {
+            Dictionary<string, List<string>> results = new Dictionary<string, List<string>>();
+            var cohorts = await _dbCohort.Get(Username);
+            if (cohorts == null) return NotFound();
+
+            var spots = await _dbSpots.GetAllCohortSpotsAsync(cohorts.Cohorts.ToArray(), 10);
+            foreach (string call in spots.DistinctBy(x => x.Spottee).Select(x => x.Spottee))
+            {
+                //var bands = spots.Where(x => x.Spottee.Contains(call)).DistinctBy(x => x.Band).Select(x => x.Band);
+                var bands = spots.Where(x => x.Spottee.StartsWith(call)).Select(x => $"{x.Band}[{x.SpotterStationInfo?.Continent ?? string.Empty}]").Distinct();
+                results.Add(call, bands.ToList());
+            }
+
+            return Ok(results);
+        }
+        [HttpGet]
+        [Route("GetAllCohortSpotsByBand")]
+        public async Task<ActionResult> GetAllCohortSpotsByBand(string Username)
+        {
+            Dictionary<string, List<string>> results = new Dictionary<string, List<string>>();
+            var cohorts = await _dbCohort.Get(Username);
+            if (cohorts == null) return NotFound();
+
+            var spots = await _dbSpots.GetAllCohortSpotsAsync(cohorts.Cohorts.ToArray(), 10);
+            foreach (string band in spots.DistinctBy(x => x.Band).Select(x => x.Band))
+            {
+                var calls = spots.Where(x => x.Band.Equals(band)).DistinctBy(x => x.Spottee).Select(x=>x.Spottee);
+                results.Add(band, calls.ToList());
+            }
+
+            return Ok(results);
+        }
+        [HttpGet]
+        [Route("GetAllCohortSpotsByBandComplex")]
+        public async Task<ActionResult> GetAllCohortSpotsByBandComplex(string Username)
+        {
+            List<BandModel> newResult = new List<BandModel>();
+            var cohorts = await _dbCohort.Get(Username);
+            if (cohorts == null) return NotFound();
+
+            var spots = await _dbSpots.GetAllCohortSpotsAsync(cohorts.Cohorts.ToArray(), 10);
+
+            var bands = spots.GroupBy(x => new { x.Band, x.Spottee, x.SpotterStationInfo?.Continent });
+            foreach(var band in bands.DistinctBy(x => x.Key.Band))
+            {
+                BandModel bandModel = new BandModel()
+                {
+                    Band = band.Key.Band,
+                    InnerCall = new List<CallModel>()
+                };
+                foreach(var call in bands.Where(x=>x.Key.Band == band.Key.Band).DistinctBy(x=>x.Key.Spottee))
+                {
+                    CallModel callModel = new CallModel()
+                    {
+                        Call = call.Key.Spottee,
+                        InnerContinent = new List<ContinentModel>()
+                    };
+                    foreach(var cont in bands.Where(x=> x.Key.Band == band.Key.Band && x.Key.Spottee == call.Key.Spottee))
+                    {
+                        ContinentModel continent = new ContinentModel()
+                        {
+                            Continent = cont.Key.Continent!,
+                            Count = cont.Count()
+                        };
+                        callModel.InnerContinent.Add(continent);
+                    }
+                    bandModel.InnerCall.Add(callModel);
+                }
+                newResult.Add(bandModel);
+            }
+
+            return Ok(newResult);
         }
     }
 }
