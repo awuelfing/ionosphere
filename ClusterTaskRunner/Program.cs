@@ -30,7 +30,7 @@ namespace ClusterTaskRunner
                 spot.SpotterStationInfo = RbnLookup.GetRBNNodeSync(spot.Spotter);
                 if(spot.SpotterStationInfo == null)
                 {
-                    CtyResult ctyResult = Cty.MatchCall(spot.Spotter);
+                    CtyResult? ctyResult = Cty.MatchCall(spot.Spotter);
                     if( ctyResult != null )
                     {
                         spot.SpotterStationInfo = new RBNNode()

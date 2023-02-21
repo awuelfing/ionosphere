@@ -37,7 +37,7 @@ namespace DXws.Controllers
             {
                 return Unauthorized();
             }
-            await _dbCohort.StoreOneAsync(cohortRecord);
+            await _dbCohort.BaseStoreOneAsync(cohortRecord);
             return CreatedAtAction(nameof(Post), cohortRecord);
         }
         [HttpPut("{id}")]

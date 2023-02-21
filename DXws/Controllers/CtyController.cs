@@ -17,11 +17,16 @@ namespace DXws.Controllers
             _logger = logger;
         }
         [HttpGet(Name = "CtyLookup")]
-        public ActionResult<CtyResult> Get(string callsign)
+        public ActionResult<CtyResult?> Get(string callsign)
         {
             try
             {
-                return Cty.MatchCall(callsign);
+                CtyResult? result = Cty.MatchCall(callsign);
+                if(result == null)
+                {
+                    return BadRequest();
+                }
+                return Ok(result);
             }
             catch
             {

@@ -14,8 +14,8 @@ namespace DxLib.Tests
         [DataRow("M0MCX", "England")]
         public void CtyDat_Check_Basic(string callsign,string expected)
         {
-            var match = Cty.MatchCall(callsign);
-            var result = match.DXCCEntityName;
+            CtyResult? match = Cty.MatchCall(callsign);
+            string result = match!.DXCCEntityName;
             Assert.AreEqual(result, expected, $"{callsign} should be {expected}");
         }
 
@@ -25,8 +25,8 @@ namespace DxLib.Tests
         public void CtyDat_Check_USA_Out_of_Area(string callsign)
         {
             const string expectedResult = "Alaska";
-            var match = Cty.MatchCall(callsign);
-            var result = match.DXCCEntityName;
+            CtyResult? match = Cty.MatchCall(callsign);
+            var result = match!.DXCCEntityName;
             Assert.AreEqual(result, expectedResult,$"{callsign} should be an exact match for an out-of-area callsign");
         }
 
@@ -36,8 +36,8 @@ namespace DxLib.Tests
         public void CtyDat_Check_USA_Significant_Length_Exception_Positive(string callsign)
         {
             const string expectedResult = "Guantanamo Bay";
-            var match = Cty.MatchCall(callsign);
-            var result = match.DXCCEntityName;
+            CtyResult? match = Cty.MatchCall(callsign);
+            var result = match!.DXCCEntityName;
             Assert.AreEqual(result, expectedResult,$"{callsign} is KG4 prefix with length 5 and should match KG4 exception");
         }
         [TestMethod]
@@ -45,8 +45,8 @@ namespace DxLib.Tests
         public void CtyDat_Check_USA_Significant_Length_Exception_Negative(string callsign)
         {
             const string expectedResult = "United States";
-            var match = Cty.MatchCall(callsign);
-            var result = match.DXCCEntityName;
+            CtyResult? match = Cty.MatchCall(callsign);
+            var result = match!.DXCCEntityName;
             Assert.AreEqual(result, expectedResult,$"{callsign} is a 6 character callsign and should not match the KG4 exception");
         }
     }

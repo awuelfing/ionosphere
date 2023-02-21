@@ -49,7 +49,7 @@ namespace DxLib.DbCaching
             _initialized = true;
         }
 
-        public async Task StoreOneAsync(T input)
+        public async Task BaseStoreOneAsync(T input)
         {
             if (!this._initialized)
             {
@@ -59,7 +59,7 @@ namespace DxLib.DbCaching
 
             return;
         }
-        public async Task<T> GetOneAsync(FilterDefinition<T> filter)
+        public async Task<T> BaseGetOneAsync(FilterDefinition<T> filter)
         {
             if (!this._initialized)
             {
@@ -68,7 +68,7 @@ namespace DxLib.DbCaching
             var results = await _mongoCollection!.FindAsync(filter);
             return await results.FirstOrDefaultAsync();
         }
-        public async Task<List<T>> GetManyAsync(FilterDefinition<T> filter)
+        public async Task<List<T>> BaseGetManyAsync(FilterDefinition<T> filter)
         {
             if (!this._initialized)
             {
@@ -77,7 +77,7 @@ namespace DxLib.DbCaching
             var results = await _mongoCollection!.FindAsync(filter);
             return await results.ToListAsync();
         }
-        public async Task UpdateAsync(FilterDefinition<T> filter,T t)
+        public async Task BaseUpdateAsync(FilterDefinition<T> filter,T t)
         {
             if (!this._initialized)
             {
@@ -86,7 +86,7 @@ namespace DxLib.DbCaching
             await _mongoCollection!.DeleteManyAsync(filter);
             await _mongoCollection!.InsertOneAsync(t);
         }
-        public async Task DeleteAsync(FilterDefinition<T> filter)
+        public async Task BaseDeleteAsync(FilterDefinition<T> filter)
         {
             if (!this._initialized)
             {
@@ -94,7 +94,7 @@ namespace DxLib.DbCaching
             }
             await _mongoCollection!.DeleteManyAsync(filter);
         }
-        public async Task DeleteAllAsync()
+        public async Task BaseDeleteAllAsync()
         {
             if (!this._initialized)
             {

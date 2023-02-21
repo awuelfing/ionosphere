@@ -33,14 +33,14 @@ namespace DXws.Controllers
         [Route("")]
         public async Task<IActionResult> PostSpot(Spot spot)
         {
-            await _dbSpots.StoreOneAsync(spot);
+            await _dbSpots.BaseStoreOneAsync(spot);
             return Ok();
         }
         [HttpGet]
         [Route("DeleteAll")]
         public async Task<IActionResult> DeleteAll()
         {
-            await _dbSpots.DeleteAllAsync();
+            await _dbSpots.BaseDeleteAllAsync();
             return NoContent(); 
         }
         [HttpGet]
@@ -48,7 +48,7 @@ namespace DXws.Controllers
         public async Task<IActionResult> DeleteOld()
         {
             var filter = Builders<Spot>.Filter.Gt("ReceivedDateTime", DateTime.UtcNow.AddHours(-6));
-            await _dbSpots.DeleteAsync(filter);
+            await _dbSpots.BaseDeleteAsync(filter);
             return NoContent();
         }
         [HttpGet]

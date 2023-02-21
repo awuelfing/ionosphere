@@ -13,7 +13,7 @@ namespace ClusterConnection
         public int Spots = 0;
         public event EventHandler<SpotEventArgs> SpotReceived;
         public event EventHandler Disconnected;
-        private static readonly string _spotRegex = @"^DX de (?<Spotter>.{11})(?<Frequency>.{9})(?<Spottee>.{13})(?<Comment>.+)(?<Time>.{4})Z$";
+        //private static readonly string _spotRegex = @"^DX de (?<Spotter>.{11})(?<Frequency>.{9})(?<Spottee>.{13})(?<Comment>.+)(?<Time>.{4})Z$";
         private static readonly string _spotRegexNew = @"^DX\sde\s(?<Spotter>[\w-#\/]+):\s*(?<Frequency>[\d\.]+)\s+(?<Spottee>[\w\d\/]+)(?<Comment>.*)(?<Time>\d{4}Z)(\s\w{2}\d{2}){0,1}$";
         private string _server, _username;
         private int _port = 0;

@@ -22,19 +22,19 @@ namespace DxLib.DbCaching
         public async Task<List<Spot>> GetAllSpotsAsync(string Callsign)
         {
             var filter = Builders<Spot>.Filter.Eq("Spottee", Callsign.ToUpper());
-            return await base.GetManyAsync(filter);
+            return await base.BaseGetManyAsync(filter);
         }
         public async Task<List<Spot>> GetAllCohortSpotsAsync(string[] calls)
         {
             var filter = Builders<Spot>.Filter.In("Spottee", calls);
-            return await base.GetManyAsync(filter);
+            return await base.BaseGetManyAsync(filter);
         }
         public async Task<List<Spot>> GetAllCohortSpotsAsync(string[] calls,int Lookback)
         {
             DateTime dateTime = DateTime.UtcNow.AddMinutes(-Lookback);
             var filter = Builders<Spot>.Filter.In("Spottee", calls) &
                 Builders<Spot>.Filter.Gt("ReceivedDateTime", dateTime);
-            return await base.GetManyAsync(filter);
+            return await base.BaseGetManyAsync(filter);
         }
     }
 }

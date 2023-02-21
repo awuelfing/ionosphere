@@ -22,7 +22,7 @@ namespace DxLib.DbCaching
         public async Task<HamQTHResult?> GetGeoAsync(string callsign, bool resolveDeeper = true)
         {
             var filter = Builders<HamQTHResult>.Filter.Eq("callsign", callsign.ToUpper());
-            var result = await base.GetOneAsync(filter);
+            var result = await base.BaseGetOneAsync(filter);
 
             if (result != null)
             {
@@ -37,7 +37,7 @@ namespace DxLib.DbCaching
 
             if(result != null)
             {
-                await base.StoreOneAsync(result);
+                await base.BaseStoreOneAsync(result);
                 return result;
             }
 
