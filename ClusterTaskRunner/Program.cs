@@ -7,169 +7,78 @@ using System.Diagnostics;
 using DXLib.Cohort;
 using DXLib.RBN;
 using DXLib.CtyDat;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace ClusterTaskRunner
 {
     internal class Program
     {
-        private static readonly ConcurrentQueue<string> _localQueue = new ConcurrentQueue<string>();
-        private static readonly Dictionary<string,int> _localAggregatedQueue= new Dictionary<string,int>();
-        private static WebAdapterClient? _webAdapterClient;
-        private static ClusterClient? _clusterClient;
-        private static ProgramOptions? _programOptions;
-        private static List<string> _cohorts = new List<string>();
-        static void ReceiveSpots(object? sender, SpotEventArgs e)
-        {
-            if(_programOptions!.EnableQueueUploader)
-            {
-                _localQueue.Enqueue(e.Spottee);
-            }
-            if(_programOptions!.EnableSpotUpload && _cohorts.Any(x => x == e.Spottee))
-            {
-                Spot spot = e.AsSpot();
-                spot.SpotterStationInfo = RbnLookup.GetRBNNodeSync(spot.Spotter);
-                if(spot.SpotterStationInfo == null)
-                {
-                    CtyResult? ctyResult = Cty.MatchCall(spot.Spotter);
-                    if( ctyResult != null )
-                    {
-                        spot.SpotterStationInfo = new RBNNode()
-                        {
-                            Continent = ctyResult.Continent,
-                            PrimaryPrefix = ctyResult.PrimaryPrefix,
-                            CQZone = ctyResult.CQZone,
-                            ITUZone = ctyResult.ITUZone,
-                            Station = ctyResult.Callsign
-                        };
-                    }
-                }
-                spot.SpottedStationInfo = Cty.MatchCall(spot.Spottee);
-
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                _webAdapterClient!.PostSpotAsync(spot);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            }
-        }
-        static void ReceiveDisconnect(object? sender, EventArgs e)
-        {
-            Console.WriteLine("Disconnected.");
-        }
-        static async Task PumpQueue()
-        {
-            DateTime lastQueueUpload = DateTime.Now;
-            string? Callsign = string.Empty;
-            while (true)
-            {
-                if (_localQueue.TryDequeue(out Callsign))
-                {
-                    if(_localAggregatedQueue.ContainsKey(Callsign))
-                    {
-                        _localAggregatedQueue[Callsign]++;
-                    }
-                    else
-                    {
-                        _localAggregatedQueue[Callsign] = 1;
-                    }
-                }
-
-                if((DateTime.Now - lastQueueUpload).TotalMilliseconds > _programOptions!.QueueUploaderDelay)
-                {
-                    var subject = _localAggregatedQueue.OrderByDescending(kvp => kvp.Key).FirstOrDefault();
-                    if(!subject.Equals(default(KeyValuePair<string,int>)))
-                    {
-                        HamQTHResult? result = await _webAdapterClient!.GetGeoAsync(subject.Key,false);
-                        if (result == null)
-                        {
-                            await _webAdapterClient!.Enqueue(subject.Key, subject.Value);
-                        }
-                        _localAggregatedQueue.Remove(subject.Key);
-                    }
-                    lastQueueUpload= DateTime.Now;
-                }
-            }
-        }
-        static async Task ProcessResolver()
-        {
-            while (true)
-            {
-                await Task.Delay(_programOptions!.ResolverDelay);
-                string? s = await _webAdapterClient!.Dequeue();
-                if(s != null)
-                {
-                    await _webAdapterClient.GetGeoAsync(s);
-                }    
-            }
-        }
-        static async Task ProcessKeepAlive()
-        {
-            while(true)
-            {
-                await _webAdapterClient!.DoKeepAlive();
-                await Task.Delay(_programOptions!.KeepAliveDelay);
-            }
-        }
         static async Task Main(string[] args)
         {
             IConfigurationRoot configurationRoot = new ConfigurationBuilder()
-               .SetBasePath(AppContext.BaseDirectory)
-               .AddJsonFile("appsettings.json")
-               .Build();
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json")
+                .Build();
 
-            _programOptions = new ProgramOptions();
-            configurationRoot.GetSection(ProgramOptions.ProgramOptionName).Bind(_programOptions);
+            var builder = Host.CreateDefaultBuilder(args);
+            
+            builder.ConfigureServices(services =>
+            {
+                services.AddSingleton<WebAdapterClient>();
+                services.AddSingleton<KeepaliveRunner>();
+                services.AddSingleton<QueueRunner>();
+                services.AddSingleton<SpotReporter>();
+                services.AddSingleton<ClusterRunner>();
+                services.Configure<ProgramOptions>(configurationRoot.GetSection(ProgramOptions.ProgramOptionName));
+                services.Configure<ClusterClientOptions>(configurationRoot.GetSection(ClusterClientOptions.ClusterClient));
+                services.Configure<WebAdapterOptions>(configurationRoot.GetSection(WebAdapterOptions.WebAdapter));
+            });
 
+
+            var host = builder.Build();
+
+            var options = host.Services.GetRequiredService<IOptions<ProgramOptions>>().Value;
+            var clusterConnection = host.Services.GetRequiredService<ClusterRunner>();
+
+            /*
             WebAdapterOptions webAdapterOptions = new WebAdapterOptions();
             configurationRoot.GetSection(WebAdapterOptions.WebAdapter).Bind(webAdapterOptions);
              _webAdapterClient = new WebAdapterClient(webAdapterOptions);
-
-            if(_programOptions.EnableSpotUpload)
-            {
-                var users = _programOptions.Users.ToList();
-                foreach(string s in users)
-                {
-                    var cohorts = await _webAdapterClient.GetCohort(s);
-                    foreach (string cohort in cohorts!.Cohorts)
-                    {
-                        _cohorts.Add(cohort);
-                    }
-                }
-            }
-
-            if (_programOptions.EnableClusterConnection)
-            {
-                ClusterClientOptions clusterClientOptions = new ClusterClientOptions();
-                configurationRoot.GetSection(ClusterClientOptions.ClusterClient).Bind(clusterClientOptions);
-                _clusterClient = new ClusterClient(clusterClientOptions.Host, clusterClientOptions.Port, clusterClientOptions.Callsign);
-
-                if (!_clusterClient.Connect())
-                {
-                    Console.WriteLine("Failed to connect.");
-                    return;
-                }
-                _clusterClient.SpotReceived += ReceiveSpots;
-                _clusterClient.Disconnected += ReceiveDisconnect;
-            }
+            */
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            if (_programOptions.EnableQueueUploader)
+            if (options.EnableQueueUploader)
             {
-                PumpQueue();
+                var queueUploader = host.Services.GetRequiredService<QueueRunner>();
+                clusterConnection._clusterClient!.SpotReceived += queueUploader.ReceiveSpots;
+                queueUploader.PumpQueue();
             }
-            if (_programOptions.EnableQueueResolver)
+
+            if(options.EnableQueueResolver)
             {
-                ProcessResolver();
+                host.Services.GetRequiredService<QueueRunner>().ProcessResolver();
             }
-            if (_programOptions.EnableClusterConnection)
+            if(options.EnableSpotUpload)
             {
-                Task.Run(() => { _clusterClient!.ProcessSpots(); });
+                var spotUploader = host.Services.GetRequiredService<SpotReporter>();
+                await spotUploader.PopulateCohorts();
+                //todo - move this to a separate thread
+                clusterConnection._clusterClient!.SpotReceived += spotUploader.ReceiveSpots;
             }
-            if(_programOptions.EnableKeepAlive)
+            if(options.EnableClusterConnection)
             {
-                ProcessKeepAlive();
+                clusterConnection.Initialize();
+                Task.Run(() => clusterConnection._clusterClient!.ProcessSpots());
+            }
+            if(options.EnableKeepAlive)
+            {
+                host.Services.GetRequiredService<KeepaliveRunner>().ProcessKeepAlive();
             }
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
-            await Task.Delay(-1);
+            await host.RunAsync();
         }
     }
 }
