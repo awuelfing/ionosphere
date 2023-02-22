@@ -10,6 +10,8 @@ using DXLib.CtyDat;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Serilog;
+using System.Runtime.InteropServices;
 
 namespace ClusterTaskRunner
 {
@@ -21,6 +23,11 @@ namespace ClusterTaskRunner
                 .SetBasePath(AppContext.BaseDirectory)
                 .AddJsonFile("appsettings.json")
                 .Build();
+
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configurationRoot)
+                .Enrich.WithThreadId()
+                .CreateLogger();
 
             var builder = Host.CreateDefaultBuilder(args);
             
