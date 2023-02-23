@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Serilog;
+using Microsoft.Extensions.Configuration;
 
 namespace DXws
 {
@@ -13,9 +15,13 @@ namespace DXws
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(builder.Configuration)
+                .CreateLogger();
+
+            builder.Host.UseSerilog();
 
             byte[] key = Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>("JwtKey")??"");
-
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -30,10 +36,7 @@ namespace DXws
                         IssuerSigningKey = new SymmetricSecurityKey(key)
                     };
                 });
-            // Add services to the container.
-
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
