@@ -2,7 +2,9 @@
 using DXLib.CtyDat;
 using DXLib.RBN;
 using DXLib.WebAdapter;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,23 +17,27 @@ namespace ClusterTaskRunner
     {
         private readonly WebAdapterClient _webAdapterClient;
         private readonly ProgramOptions _programOptions;
-        private static List<string> _cohorts = new List<string>();
+        private readonly List<string> _cohorts = new List<string>();
+        private readonly ILogger<SpotReporter> _logger;
 
-        public SpotReporter(WebAdapterClient webAdapterClient, IOptions<ProgramOptions> programOptions)
+        public SpotReporter(ILogger<SpotReporter> logger,WebAdapterClient webAdapterClient, IOptions<ProgramOptions> programOptions)
         {
+            _logger = logger;
             _webAdapterClient = webAdapterClient;
             _programOptions = programOptions.Value;
         }
 
         public void ReceiveSpots(object? sender, SpotEventArgs e)
         {
-            Console.WriteLine("Spot reporter received spot");
+            _logger.Log(LogLevel.Trace, "received {e}", e);
             if (_programOptions!.EnableSpotUpload && _cohorts.Any(x => x == e.Spottee))
             {
+                _logger.Log(LogLevel.Trace, "qualified {e}", e);
                 Spot spot = e.AsSpot();
                 spot.SpotterStationInfo = RbnLookup.GetRBNNodeSync(spot.Spotter);
                 if (spot.SpotterStationInfo == null)
                 {
+                    _logger.Log(LogLevel.Debug, "RBN lookup failed for {Spotter}", e.Spotter);
                     CtyResult? ctyResult = Cty.MatchCall(spot.Spotter);
                     if (ctyResult != null)
                     {
@@ -50,6 +56,7 @@ namespace ClusterTaskRunner
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 _webAdapterClient!.PostSpotAsync(spot);
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                _logger.Log(LogLevel.Trace, "deferred upload of {e}", e);
             }
         }
         public async Task PopulateCohorts()
@@ -59,11 +66,13 @@ namespace ClusterTaskRunner
                 var users = _programOptions.Users.ToList();
                 foreach (string s in users)
                 {
+                    _logger.Log(LogLevel.Information, "populating cohorts for {s}", s);
                     var cohorts = await _webAdapterClient.GetCohort(s);
                     foreach (string cohort in cohorts!.Cohorts)
                     {
                         _cohorts.Add(cohort);
                     }
+                    _logger.Log(LogLevel.Information, "size of cohort list is {Count}", _cohorts.Count());
                 }
             }
         }

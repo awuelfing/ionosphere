@@ -2,7 +2,9 @@
 using DXLib.CtyDat;
 using DXLib.RBN;
 using DXLib.WebAdapter;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +17,11 @@ namespace ClusterTaskRunner
     {
         public ClusterClient? _clusterClient;
         private readonly ClusterClientOptions _clusterClientOptions;
+        private readonly ILogger<ClusterRunner> _logger;
 
-        public ClusterRunner(IOptions<ClusterClientOptions> clusterClientOptions)
+        public ClusterRunner(ILogger<ClusterRunner> logger, IOptions<ClusterClientOptions> clusterClientOptions)
         {
+            _logger= logger;
             _clusterClientOptions = clusterClientOptions.Value;
             //this is light enought to put in the constructor
             _clusterClient = new ClusterClient(_clusterClientOptions.Host, _clusterClientOptions.Port, _clusterClientOptions.Callsign);
@@ -26,11 +30,20 @@ namespace ClusterTaskRunner
         {
             _clusterClient!.SpotReceived += this.ReceiveSpots;
             _clusterClient!.Disconnected += this.ReceiveDisconnect;
-            if (_clusterClient!.Connect())
+            _logger.Log(LogLevel.Information,"Cluster connection to {0}:{1} attempting to connect",
+                _clusterClientOptions.Host,
+                _clusterClientOptions.Port);
+            if (! _clusterClient!.Connect())
             {
-                Console.WriteLine("Failed to connect.");
+                _logger.LogError("Cluster connection to {0}:{1} could not connect", 
+                    _clusterClientOptions.Host, 
+                    _clusterClientOptions.Port);
                 return;
             }
+            _logger.Log(LogLevel.Information,
+                "Cluster connection to {0}:{1} succeeded",
+                _clusterClientOptions.Host,
+                _clusterClientOptions.Port);
         }
 
         public void ReceiveSpots(object? sender, SpotEventArgs e)
@@ -39,7 +52,9 @@ namespace ClusterTaskRunner
         }
         public void ReceiveDisconnect(object? sender, EventArgs e)
         {
-            Console.WriteLine("Disconnected.");
+            _logger.LogError("Cluster connection to {0}:{1} disconnected", 
+                _clusterClientOptions.Host, 
+                _clusterClientOptions.Port);
         }
     }
 }

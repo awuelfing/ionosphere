@@ -107,6 +107,10 @@ namespace ClusterConnection
         {
             return ConvertSpot(this);
         }
+        public override string ToString()
+        {
+            return $"{Spottee} by {Spotter} at {Time}";
+        }
     }
 }
 

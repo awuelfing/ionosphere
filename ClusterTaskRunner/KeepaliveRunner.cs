@@ -14,19 +14,20 @@ namespace ClusterTaskRunner
     {
         private readonly WebAdapterClient _webAdapterClient;
         private readonly ProgramOptions _programOptions;
-        public KeepaliveRunner(WebAdapterClient webAdapterClient, IOptions<ProgramOptions> programOptions)
+        private readonly ILogger<KeepaliveRunner> _logger;
+        public KeepaliveRunner(ILogger<KeepaliveRunner> logger,WebAdapterClient webAdapterClient, IOptions<ProgramOptions> programOptions)
         {
+            _logger = logger;
             _webAdapterClient = webAdapterClient;
             _programOptions = programOptions.Value;
         }
         public async Task ProcessKeepAlive()
         {
-            Log.Verbose("Keepalive running");
             while (true)
             {
-                Log.Information("Calling keepalive");
-                await _webAdapterClient!.DoKeepAlive();
                 await Task.Delay(_programOptions!.KeepAliveDelay);
+                _logger.Log(LogLevel.Information, "Calling keepalive after {0}",_programOptions.KeepAliveDelay);
+                await _webAdapterClient!.DoKeepAlive();
             }
         }
     }

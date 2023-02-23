@@ -30,7 +30,6 @@ namespace ClusterTaskRunner
                 .CreateLogger();
 
             var builder = Host.CreateDefaultBuilder(args);
-            
             builder.ConfigureServices(services =>
             {
                 services.AddSingleton<WebAdapterClient>();
@@ -41,11 +40,11 @@ namespace ClusterTaskRunner
                 services.Configure<ProgramOptions>(configurationRoot.GetSection(ProgramOptions.ProgramOptionName));
                 services.Configure<ClusterClientOptions>(configurationRoot.GetSection(ClusterClientOptions.ClusterClient));
                 services.Configure<WebAdapterOptions>(configurationRoot.GetSection(WebAdapterOptions.WebAdapter));
+                services.AddLogging(builder => builder.AddSerilog(Log.Logger));
             });
 
-
             var host = builder.Build();
-
+            
             var options = host.Services.GetRequiredService<IOptions<ProgramOptions>>().Value;
             var clusterConnection = host.Services.GetRequiredService<ClusterRunner>();
 
@@ -55,17 +54,22 @@ namespace ClusterTaskRunner
              _webAdapterClient = new WebAdapterClient(webAdapterOptions);
             */
 
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            Log.Debug("Services registered");
+
             if (options.EnableQueueUploader)
             {
                 var queueUploader = host.Services.GetRequiredService<QueueRunner>();
                 clusterConnection._clusterClient!.SpotReceived += queueUploader.ReceiveSpots;
-                queueUploader.PumpQueue();
+                _ = Task.Factory.StartNew(queueUploader.PumpQueue, TaskCreationOptions.LongRunning);
+                Log.Debug("Queue uploader startup complete");
             }
 
             if(options.EnableQueueResolver)
             {
-                host.Services.GetRequiredService<QueueRunner>().ProcessResolver();
+                _ = Task.Factory.StartNew(
+                    host.Services.GetRequiredService<QueueRunner>().ProcessResolver,
+                    TaskCreationOptions.LongRunning);
+                Log.Debug("Queue resolver startup complete");
             }
             if(options.EnableSpotUpload)
             {
@@ -73,18 +77,22 @@ namespace ClusterTaskRunner
                 await spotUploader.PopulateCohorts();
                 //todo - move this to a separate thread
                 clusterConnection._clusterClient!.SpotReceived += spotUploader.ReceiveSpots;
+                Log.Debug("Spot upload startup complete");
             }
             if(options.EnableClusterConnection)
             {
                 clusterConnection.Initialize();
-                Task.Run(() => clusterConnection._clusterClient!.ProcessSpots());
+                _ = Task.Factory.StartNew(() => clusterConnection._clusterClient!.ProcessSpots(),
+                    TaskCreationOptions.LongRunning);
+                Log.Debug("Cluster connection initalized and startup complete");
             }
             if(options.EnableKeepAlive)
             {
-                host.Services.GetRequiredService<KeepaliveRunner>().ProcessKeepAlive();
+                _ = Task.Factory.StartNew(
+                    host.Services.GetRequiredService<KeepaliveRunner>().ProcessKeepAlive,
+                    TaskCreationOptions.LongRunning);
+                Log.Debug("Keepalive startup complete");
             }
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-
             await host.RunAsync();
         }
     }
