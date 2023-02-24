@@ -26,7 +26,7 @@ namespace DXws.Controllers
             var result = await _dbCohort.Get(id);
             if(result == null)
             {
-                return NotFound();
+                return NoContent();
             }
             return Ok(result);
         }

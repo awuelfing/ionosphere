@@ -34,7 +34,7 @@ namespace DXws.Controllers
             }
             else
             {
-                return NotFound();
+                return NoContent();
             }
         }
         [HttpGet]
@@ -69,7 +69,7 @@ namespace DXws.Controllers
         {
             var result = await _dbQueue.DequeueAsync(false);
             if(result!= null) return Ok(result);
-            else return NotFound();
+            else return NoContent();
         }
         [HttpGet]
         [Route("Peek")]
@@ -77,7 +77,7 @@ namespace DXws.Controllers
         {
             var result = await _dbQueue.DequeueAsync(true);
             if (result != null) return Ok(result);
-            else return NotFound();
+            else return NoContent();
         }
     }
 }
