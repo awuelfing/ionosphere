@@ -17,6 +17,7 @@ namespace ClusterTaskRunner
 {
     internal class Program
     {
+        private const string _purgeUri = "/api/spots/DeleteOld";
         static async Task Main(string[] args)
         {
             IConfigurationRoot configurationRoot = new ConfigurationBuilder()
@@ -33,7 +34,7 @@ namespace ClusterTaskRunner
             builder.ConfigureServices(services =>
             {
                 services.AddSingleton<WebAdapterClient>();
-                services.AddSingleton<KeepaliveRunner>();
+                services.AddSingleton<WebTaskRunner>();
                 services.AddSingleton<QueueRunner>();
                 services.AddSingleton<SpotReporter>();
                 services.AddSingleton<ClusterRunner>();
@@ -88,10 +89,28 @@ namespace ClusterTaskRunner
             }
             if(options.EnableKeepAlive)
             {
-                _ = Task.Factory.StartNew(
-                    host.Services.GetRequiredService<KeepaliveRunner>().ProcessKeepAlive,
-                    TaskCreationOptions.LongRunning);
+                var keepaliveDelay = options.KeepAliveDelay;
+                var keepalive = () =>
+                {
+                    _ = host.Services.GetRequiredService<WebTaskRunner>()
+                        .RunWebTask(string.Empty, keepaliveDelay)
+                        .ConfigureAwait(false);
+                };
+                _ = Task.Factory.StartNew(keepalive, TaskCreationOptions.LongRunning);
                 Log.Debug("Keepalive startup complete");
+            }
+            if (options.EnableSpotPurge)
+            {
+                var spotPurgeDelay = options.SpotPurgeDelay;
+                var rightUri = $"{_purgeUri}?minutes={options.SpotPurgeAgeMinutes}";
+                var spotPurge = () =>
+                {
+                    _ = host.Services.GetRequiredService<WebTaskRunner>()
+                        .RunWebTask(rightUri, spotPurgeDelay)
+                        .ConfigureAwait(false);
+                };
+                _ = Task.Factory.StartNew(spotPurge, TaskCreationOptions.LongRunning);
+                Log.Debug("Spot Purge startup complete");
             }
             await host.RunAsync();
         }

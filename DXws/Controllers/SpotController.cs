@@ -17,12 +17,14 @@ namespace DXws.Controllers
     [Authorize(Roles = "Read")]
     public class SpotController : Controller
     {
+        private readonly ILogger<SpotController> _logger;
         private readonly DbSpots _dbSpots;
         private readonly DbCohort _dbCohort;
-        public SpotController(DbSpots dbSpots,DbCohort dbCohort)
+        public SpotController(ILogger<SpotController> logger, DbSpots dbSpots,DbCohort dbCohort)
         {
             _dbSpots = dbSpots;
             _dbCohort = dbCohort;
+            _logger = logger;
         }
         [HttpGet]
         public IActionResult Index()
@@ -40,14 +42,16 @@ namespace DXws.Controllers
         [Route("DeleteAll")]
         public async Task<IActionResult> DeleteAll()
         {
+            _logger.Log(LogLevel.Information, "Purging all spots");
             await _dbSpots.BaseDeleteAllAsync();
             return NoContent(); 
         }
         [HttpGet]
         [Route("DeleteOld")]
-        public async Task<IActionResult> DeleteOld()
+        public async Task<IActionResult> DeleteOld(int minutes = 6*60)
         {
-            var filter = Builders<Spot>.Filter.Gt("ReceivedDateTime", DateTime.UtcNow.AddHours(-6));
+            _logger.Log(LogLevel.Information, "Purging spots > {minutes}m", minutes);
+            var filter = Builders<Spot>.Filter.Gt("ReceivedDateTime", DateTime.UtcNow.AddHours(-minutes));
             await _dbSpots.BaseDeleteAsync(filter);
             return NoContent();
         }

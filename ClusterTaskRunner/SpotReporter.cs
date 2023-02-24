@@ -53,9 +53,7 @@ namespace ClusterTaskRunner
                 }
                 spot.SpottedStationInfo = Cty.MatchCall(spot.Spottee);
 
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                _webAdapterClient!.PostSpotAsync(spot);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                _ = _webAdapterClient!.PostSpotAsync(spot);
                 _logger.Log(LogLevel.Trace, "deferred upload of {e}", e);
             }
         }

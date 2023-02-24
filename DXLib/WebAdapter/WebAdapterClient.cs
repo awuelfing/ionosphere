@@ -45,9 +45,9 @@ namespace DXLib.WebAdapter
             }
             return null;
         }
-        public async Task DoKeepAlive()
+        public async Task DoBlindRetrieve(string uri)
         {
-            await _httpClient.GetAsync("");
+            await _httpClient.GetAsync(uri);
             return;
         }
         public async Task Enqueue(string callsign,int count)
