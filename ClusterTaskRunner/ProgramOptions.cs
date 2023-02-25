@@ -20,6 +20,8 @@ namespace ClusterTaskRunner
         public int SpotPurgeDelay { get; set; } = 180000;
         public int SpotPurgeAgeMinutes { get; set; } = 6 * 60;
         public bool EnableSpotUpload { get; set; } = false;
+        public bool EnableStatusReport { get; set; } = false;
+        public int StatusReportDelay { get; set; } = 10000;
         public string[] Users { get; set; } = { };
     }
 }

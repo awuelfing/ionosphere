@@ -38,6 +38,7 @@ namespace ClusterTaskRunner
                 services.AddSingleton<QueueRunner>();
                 services.AddSingleton<SpotReporter>();
                 services.AddSingleton<ClusterRunner>();
+                services.AddSingleton<StatusReporter>();
                 services.Configure<ProgramOptions>(configurationRoot.GetSection(ProgramOptions.ProgramOptionName));
                 services.Configure<ClusterClientOptions>(configurationRoot.GetSection(ClusterClientOptions.ClusterClient));
                 services.Configure<WebAdapterOptions>(configurationRoot.GetSection(WebAdapterOptions.WebAdapter));
@@ -56,6 +57,12 @@ namespace ClusterTaskRunner
             */
 
             Log.Debug("Services registered");
+
+            if(options.EnableStatusReport)
+            {
+                var statusReport = host.Services.GetRequiredService<StatusReporter>();
+                _ = Task.Factory.StartNew(statusReport.StatusLoop, TaskCreationOptions.LongRunning);
+            }
 
             if (options.EnableQueueUploader)
             {
@@ -78,6 +85,11 @@ namespace ClusterTaskRunner
                 await spotUploader.PopulateCohorts();
                 //todo - move this to a separate thread
                 clusterConnection._clusterClient!.SpotReceived += spotUploader.ReceiveSpots;
+                if (options.EnableStatusReport)
+                {
+                    var statusReport = host.Services.GetRequiredService<StatusReporter>();
+                    spotUploader.SpotUploaded += statusReport.ReportSpotUpload;
+                }
                 Log.Debug("Spot upload startup complete");
             }
             if(options.EnableClusterConnection)

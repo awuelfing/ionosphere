@@ -19,6 +19,7 @@ namespace ClusterTaskRunner
         private readonly ProgramOptions _programOptions;
         private readonly List<string> _cohorts = new List<string>();
         private readonly ILogger<SpotReporter> _logger;
+        public event EventHandler? SpotUploaded;
 
         public SpotReporter(ILogger<SpotReporter> logger,WebAdapterClient webAdapterClient, IOptions<ProgramOptions> programOptions)
         {
@@ -55,6 +56,12 @@ namespace ClusterTaskRunner
 
                 _ = _webAdapterClient!.PostSpotAsync(spot);
                 _logger.Log(LogLevel.Trace, "deferred upload of {e}", e);
+
+                EventHandler? eventHandler = this.SpotUploaded;
+                if(eventHandler != null)
+                {
+                    eventHandler(this, new EventArgs());
+                }
             }
         }
         public async Task PopulateCohorts()

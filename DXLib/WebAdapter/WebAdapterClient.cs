@@ -71,7 +71,7 @@ namespace DXLib.WebAdapter
             {
                 result = await _httpClient.GetFromJsonAsync<CohortRecord>($"/api/cohort/{Username}");
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 result = new CohortRecord() { Username = Username };
             }
