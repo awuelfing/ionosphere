@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 
 namespace ClusterTaskRunner
 {
@@ -21,7 +22,7 @@ namespace ClusterTaskRunner
         private readonly List<string> _cohorts = new List<string>();
         private readonly ILogger<SpotReporter> _logger;
         public event EventHandler? SpotUploaded;
-        private readonly ConcurrentQueue<SpotEventArgs> _spotQueue = new ConcurrentQueue<SpotEventArgs>();
+        private readonly BufferBlock<SpotEventArgs> _queue = new BufferBlock<SpotEventArgs>();
 
         public SpotReporter(ILogger<SpotReporter> logger,WebAdapterClient webAdapterClient, IOptions<ProgramOptions> programOptions)
         {
@@ -32,14 +33,15 @@ namespace ClusterTaskRunner
         public void ReceiveSpots(object? sender, SpotEventArgs e)
         {
             _logger.Log(LogLevel.Trace, "received {e}", e);
-            _spotQueue.Enqueue(e);
+            _queue.Post(e);
         }
 
-        public void PumpSpots()
+        public async void PumpSpots()
         {
             while(true)
             {
-                if(_spotQueue.TryDequeue(out var eSpot))
+                await _queue.OutputAvailableAsync();
+                if(_queue.TryReceive(out var eSpot))
                 {
                     _logger.Log(LogLevel.Trace, "dequeued {spot}", eSpot);
                     if(_cohorts.Any(x=>x == eSpot.Spottee))

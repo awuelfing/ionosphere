@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 
 namespace ClusterTaskRunner
 {
@@ -17,7 +18,7 @@ namespace ClusterTaskRunner
     {
         private readonly ProgramOptions _programOptions;
         private readonly WebAdapterClient _webAdapterClient;
-        private readonly ConcurrentQueue<string> _localQueue = new ConcurrentQueue<string>();
+        private readonly BufferBlock<string> _queue = new BufferBlock<string>();
         private readonly Dictionary<string, int> _localAggregatedQueue = new Dictionary<string, int>();
         private readonly ILogger<QueueRunner> _logger;
         public QueueRunner(ILogger<QueueRunner> logger, IOptions<ProgramOptions> programOptions, WebAdapterClient webAdapterClient)
@@ -32,17 +33,17 @@ namespace ClusterTaskRunner
             _logger.Log(LogLevel.Debug, "received {e}", e);
             if (_programOptions!.EnableQueueUploader)
             {
-                _localQueue.Enqueue(e.Spottee);
+                _queue.Post(e.Spottee);
                 _logger.Log(LogLevel.Debug, "queued {e}", e);
             }
         }
         public async Task PumpQueue()
         {
             DateTime lastQueueUpload = DateTime.Now;
-            string? Callsign = string.Empty;
             while (true)
             {
-                if (_localQueue.TryDequeue(out Callsign))
+                await _queue.OutputAvailableAsync();
+                if(_queue.TryReceive(out var Callsign))
                 {
                     _logger.Log(LogLevel.Debug, "dequeued {Callsign}", Callsign);
                     if (_localAggregatedQueue.ContainsKey(Callsign))
