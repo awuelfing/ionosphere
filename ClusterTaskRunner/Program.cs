@@ -83,13 +83,16 @@ namespace ClusterTaskRunner
             {
                 var spotUploader = host.Services.GetRequiredService<SpotReporter>();
                 await spotUploader.PopulateCohorts();
-                //todo - move this to a separate thread
+
                 clusterConnection._clusterClient!.SpotReceived += spotUploader.ReceiveSpots;
                 if (options.EnableStatusReport)
                 {
                     var statusReport = host.Services.GetRequiredService<StatusReporter>();
                     spotUploader.SpotUploaded += statusReport.ReportSpotUpload;
                 }
+                _ = Task.Factory.StartNew(
+                        spotUploader.PumpSpots,
+                        TaskCreationOptions.LongRunning);
                 Log.Debug("Spot upload startup complete");
             }
             if(options.EnableClusterConnection)
