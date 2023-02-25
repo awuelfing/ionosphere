@@ -41,9 +41,23 @@ namespace ClusterConnection
             Connected = true;
             return true;
         }
+        public async Task<bool> ConnectAsync()
+        {
+            _client = new TcpClient();
+            await _client.ConnectAsync(_server, _port);
+            if (!_client.Connected) return false;
+            await Task.Delay(500);
+
+            _outbuffer = System.Text.Encoding.ASCII.GetBytes($"{_username}\n");
+            _ns = _client.GetStream();
+            _sr = new StreamReader(_ns);
+            await _ns.WriteAsync(_outbuffer, 0, _outbuffer.Length);
+
+            Connected = true;
+            return true;
+        }
         public void ProcessSpots()
         {
-
             try
             {
                 while (_client.Connected)
@@ -81,8 +95,46 @@ namespace ClusterConnection
                     eventHandler(this, new EventArgs());
                 }
             }
+        }
+        public async Task ProcessSpotsAsync()
+        {
+            try
+            {
+                while (_client.Connected)
+                {
+                    var line = await _sr.ReadLineAsync();
+                    //Console.WriteLine(line);
+                    Debug.WriteLine(line);
+                    MatchCollection spotCollection = Regex.Matches(line ?? "", _spotRegexNew, RegexOptions.Multiline);
 
-
+                    foreach (Match spotMatch in spotCollection)
+                    {
+                        Spots++;
+                        EventHandler<SpotEventArgs> eventHandler = this.SpotReceived;
+                        if (eventHandler != null)
+                        {
+                            eventHandler(this, new SpotEventArgs(spotMatch.Groups["Spotter"].ToString().Trim().Replace(":", "").Replace("-#", ""),
+                                spotMatch.Groups["Frequency"].ToString().Trim(),
+                                spotMatch.Groups["Spottee"].ToString().Trim(),
+                                spotMatch.Groups["Comment"].ToString().Trim(),
+                                spotMatch.Groups["Time"].ToString().Trim()
+                                ));
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                Connected = false;
+                if (_sr != null) _sr.Dispose();
+                if (_ns != null) _ns.Dispose();
+                if (_client != null) _client.Dispose();
+                EventHandler eventHandler = this.Disconnected;
+                if (eventHandler != null)
+                {
+                    eventHandler(this, new EventArgs());
+                }
+            }
         }
     }
 }

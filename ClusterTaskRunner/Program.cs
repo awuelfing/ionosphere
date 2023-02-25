@@ -97,8 +97,9 @@ namespace ClusterTaskRunner
             }
             if(options.EnableClusterConnection)
             {
-                clusterConnection.Initialize();
-                _ = Task.Factory.StartNew(() => clusterConnection._clusterClient!.ProcessSpots(),
+                await clusterConnection.InitializeAsync();
+                _ = Task.Factory.StartNew(
+                    clusterConnection._clusterClient!.ProcessSpotsAsync,
                     TaskCreationOptions.LongRunning);
                 Log.Debug("Cluster connection initalized and startup complete");
             }

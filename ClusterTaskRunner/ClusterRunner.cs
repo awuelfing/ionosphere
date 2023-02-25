@@ -26,14 +26,14 @@ namespace ClusterTaskRunner
             //this is light enought to put in the constructor
             _clusterClient = new ClusterClient(_clusterClientOptions.Host, _clusterClientOptions.Port, _clusterClientOptions.Callsign);
         }
-        public void Initialize()
+        public async Task InitializeAsync()
         {
             _clusterClient!.SpotReceived += this.ReceiveSpots;
             _clusterClient!.Disconnected += this.ReceiveDisconnect;
             _logger.Log(LogLevel.Information,"Cluster connection to {0}:{1} attempting to connect",
                 _clusterClientOptions.Host,
                 _clusterClientOptions.Port);
-            if (! _clusterClient!.Connect())
+            if (! await _clusterClient!.ConnectAsync())
             {
                 _logger.LogError("Cluster connection to {0}:{1} could not connect", 
                     _clusterClientOptions.Host, 
