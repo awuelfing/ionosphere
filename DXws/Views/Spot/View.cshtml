@@ -1,0 +1,48 @@
+﻿@addTagHelper *,Microsoft.AspNetCore.Mvc.TagHelpers
+@model IEnumerable<DXws.Models.BandModel>
+<form method="get" asp-action="GetAllCohortSpotsByBandComplexView" asp-controller="Spot">
+    <input type="text" id="username" name="username" value="Admin" />
+    <input type="submit" />
+</form>
+<p>
+    <a asp-controller="Spot" asp-action="GetAllCohortSpotsByBandComplexView">Refresh</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Band)
+            </th>
+            <th>Call</th>
+            <th>Continents</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr><td>@item.Band</td><td>--------</td><td>--------</td></tr>
+
+
+            @foreach (var call in item.InnerCall!)
+            {
+                <tr>
+                    <td></td>
+                    <td>
+                        @call.Call
+                    </td>
+                    <td>
+                        @{
+                            string s = string.Empty;
+                            foreach (var cont in call.InnerContinent!)
+                            {
+                                s += $"{cont.Continent}[{cont.Count}] ";
+                            }
+                        }
+                        @s
+                    </td>
+                </tr>
+            }
+
+        }
+    </tbody>
+</table>

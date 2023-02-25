@@ -36,7 +36,8 @@ namespace DXws
                         IssuerSigningKey = new SymmetricSecurityKey(key)
                     };
                 });
-            builder.Services.AddControllers();
+            //builder.Services.AddControllers();
+            builder.Services.AddControllersWithViews();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Json;
+using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -70,7 +71,7 @@ namespace DXLib.WebAdapter
             {
                 result = await _httpClient.GetFromJsonAsync<CohortRecord>($"/api/cohort/{Username}");
             }
-            catch (HttpRequestException)
+            catch (Exception e)
             {
                 result = new CohortRecord() { Username = Username };
             }

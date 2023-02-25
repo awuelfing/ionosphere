@@ -154,5 +154,46 @@ namespace DXws.Controllers
 
             return Ok(newResult);
         }
+        [HttpGet]
+        [Route("GetAllCohortSpotsByBandComplexView")]
+        public async Task<ActionResult> GetAllCohortSpotsByBandComplexView(string Username)
+        {
+            List<BandModel> newResult = new List<BandModel>();
+            var cohorts = await _dbCohort.Get(Username);
+            if (cohorts == null) return NotFound();
+
+            var spots = await _dbSpots.GetAllCohortSpotsAsync(cohorts.Cohorts.ToArray(), 9999);
+
+            var bands = spots.GroupBy(x => new { x.Band, x.Spottee, x.SpotterStationInfo?.Continent });
+            foreach (var band in bands.DistinctBy(x => x.Key.Band))
+            {
+                BandModel bandModel = new BandModel()
+                {
+                    Band = band.Key.Band,
+                    InnerCall = new List<CallModel>()
+                };
+                foreach (var call in bands.Where(x => x.Key.Band == band.Key.Band).DistinctBy(x => x.Key.Spottee))
+                {
+                    CallModel callModel = new CallModel()
+                    {
+                        Call = call.Key.Spottee,
+                        InnerContinent = new List<ContinentModel>()
+                    };
+                    foreach (var cont in bands.Where(x => x.Key.Band == band.Key.Band && x.Key.Spottee == call.Key.Spottee))
+                    {
+                        ContinentModel continent = new ContinentModel()
+                        {
+                            Continent = cont.Key.Continent!,
+                            Count = cont.Count()
+                        };
+                        callModel.InnerContinent.Add(continent);
+                    }
+                    bandModel.InnerCall.Add(callModel);
+                }
+                newResult.Add(bandModel);
+            }
+
+            return View("View",newResult);
+        }
     }
 }
