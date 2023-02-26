@@ -51,7 +51,7 @@ namespace DXws.Controllers
         public async Task<IActionResult> DeleteOld(int minutes = 6*60)
         {
             _logger.Log(LogLevel.Information, "Purging spots > {minutes}m", minutes);
-            var filter = Builders<Spot>.Filter.Gt("ReceivedDateTime", DateTime.UtcNow.AddHours(-minutes));
+            var filter = Builders<Spot>.Filter.Lt("ReceivedDateTime", DateTime.UtcNow.AddHours(-minutes));
             await _dbSpots.BaseDeleteAsync(filter);
             return NoContent();
         }
