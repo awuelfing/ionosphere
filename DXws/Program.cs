@@ -6,6 +6,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Serilog;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Net.Http.Headers;
 
 namespace DXws
 {
@@ -21,7 +24,7 @@ namespace DXws
 
             builder.Host.UseSerilog();
 
-            byte[] key = Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>("JwtKey")??"");
+            byte[] key = Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>("JwtKey") ?? "");
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -36,6 +39,42 @@ namespace DXws
                         IssuerSigningKey = new SymmetricSecurityKey(key)
                     };
                 });
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/account/login";
+                    options.ExpireTimeSpan = TimeSpan.FromMinutes(200);
+                    options.SlidingExpiration = true;
+                    options.AccessDeniedPath = "/account/index";
+                });
+            /*
+            builder.Services.AddAuthorization(options =>
+            {
+                var defaultAuthorizationPolicyBuilder = new AuthorizationPolicyBuilder(
+                    JwtBearerDefaults.AuthenticationScheme,
+                    CookieAuthenticationDefaults.AuthenticationScheme);
+                defaultAuthorizationPolicyBuilder =
+                    defaultAuthorizationPolicyBuilder.RequireAuthenticatedUser();
+                options.DefaultPolicy = defaultAuthorizationPolicyBuilder.Build();
+            });*/
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = "Both";
+                options.DefaultChallengeScheme = "Both";
+            })
+            .AddPolicyScheme("Both", "Both", options =>
+             {
+                 options.ForwardDefaultSelector = context =>
+                 {
+                     string? authorization = context.Request.Headers[HeaderNames.Authorization];
+                     if (!string.IsNullOrEmpty(authorization) && authorization.StartsWith("Bearer "))
+                     {
+                         return JwtBearerDefaults.AuthenticationScheme;
+                     }
+                     return CookieAuthenticationDefaults.AuthenticationScheme;
+                 };
+             });
+            
             //builder.Services.AddControllers();
             builder.Services.AddControllersWithViews();
             builder.Services.AddEndpointsApiExplorer();
@@ -48,7 +87,7 @@ namespace DXws
             builder.Services.AddScoped<IQthLookup>(s => new DbCache(s.GetRequiredService<IOptions<DbCacheOptions>>()) { _qthLookup = s.GetRequiredService<HamQTHGeo>() });
             builder.Services.AddScoped<DbQueue, DbQueue>();
             builder.Services.AddScoped<DbSpots, DbSpots>();
-            builder.Services.AddScoped<DbCohort,DbCohort>();
+            builder.Services.AddScoped<DbCohort, DbCohort>();
             builder.Services.AddScoped<DbUser, DbUser>();
 
             var app = builder.Build();
@@ -63,6 +102,7 @@ namespace DXws
             }
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
 
             app.UseAuthorization();
 

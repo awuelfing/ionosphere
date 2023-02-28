@@ -9,7 +9,7 @@ using System.Data;
 namespace DXws.Controllers
 {
     [ApiController]
-    [Route("/api/[controller]")]
+    [Route("/api/user")]
     [Authorize(Roles = "Write")]
     public class UserController : Controller
     {
