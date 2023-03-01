@@ -11,7 +11,7 @@ namespace DXws.Controllers
 {
     [ApiController]
     [Route("/api/[controller]")]
-    [Authorize(Roles ="Write")]
+    //[Authorize(Roles ="Write")]
     public class CohortController : Controller
     {
         private readonly DbCohort _dbCohort;
@@ -56,7 +56,7 @@ namespace DXws.Controllers
             await _dbCohort.Delete(id);
             return NoContent();
         }
-        [HttpGet]
+        [HttpPost]
         [Route("AppendOne")]
         public async Task<IActionResult> AppendOne(string Username, string Callsign)
         {
@@ -71,7 +71,7 @@ namespace DXws.Controllers
             }
             cohortRecord.Cohorts = cohortRecord.Cohorts.Append(Callsign).ToList();
             await _dbCohort.Update(cohortRecord);
-            return AcceptedAtAction(nameof(Post), cohortRecord);
+            return AcceptedAtAction(nameof(AppendOne), cohortRecord);
         }
     }
 }

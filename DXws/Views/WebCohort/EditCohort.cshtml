@@ -1,0 +1,46 @@
+﻿@addTagHelper *,Microsoft.AspNetCore.Mvc.TagHelpers
+@model DXLib.Cohort.CohortRecord
+
+<h4>CohortRecord</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <p>Cohorts for @Model.Username</p>
+    </div>
+    <table id="CohortTable">
+        <thead>
+            <tr>
+                <th>Cohort</th>
+                <th>Remove</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(string s in Model.Cohorts)
+            {
+                <tr>
+                    <td>@s</td>
+                    <td><input type="button" value="Remove"/></td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <form id="AddForm" method="post" enctype="application/x-www-form-urlencoded" asp-controller="WebCohort" asp-action="AppendOne">
+                    <input type="hidden" name="Username" id="Username" value="@Model.Username" />
+                <td><input type="text" name="Callsign" id="Callsign"/></td>
+                <td><input type="submit" id="addCohortButton" value="Add" /></td>
+                </form>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

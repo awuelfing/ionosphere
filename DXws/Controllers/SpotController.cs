@@ -14,7 +14,7 @@ namespace DXws.Controllers
 {
     [Route("/api/spots")]
     [ApiController]
-    [Authorize(Roles = "Read")]
+    //[Authorize(Roles = "Read")]
     public class SpotController : Controller
     {
         private readonly ILogger<SpotController> _logger;
