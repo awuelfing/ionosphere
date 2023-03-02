@@ -11,7 +11,7 @@ namespace DXws.Controllers
 {
     [ApiController]
     [Route("/api/[controller]")]
-    //[Authorize(Roles ="Write")]
+    [Authorize(Roles = "Read")]
     public class CohortController : Controller
     {
         private readonly DbCohort _dbCohort;

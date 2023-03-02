@@ -8,9 +8,11 @@ namespace DXLib.User
 {
     public class UserRecord
     {
-        public string? Username { get; set; }
+        public string Username { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public int DefaultLookback { get; set; } = 5;
+        public string Password { get; set; } = string.Empty;
+        public IEnumerable<string> Roles { get; set; } = Enumerable.Empty<string>();
     }
 }

@@ -10,7 +10,7 @@ namespace DXws.Controllers
 {
     [ApiController]
     [Route("/api/user")]
-    [Authorize(Roles = "Write")]
+    [Authorize(Roles = "Admin")]
     public class UserController : Controller
     {
         private readonly ILogger<UserController> _logger;

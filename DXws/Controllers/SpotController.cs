@@ -1,5 +1,6 @@
 ﻿using DxLib.DbCaching;
 using DXLib.RBN;
+using DXws.Admin;
 using DXws.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +15,7 @@ namespace DXws.Controllers
 {
     [Route("/api/spots")]
     [ApiController]
-    //[Authorize(Roles = "Read")]
+    [Authorize(Roles = "Read")]
     public class SpotController : Controller
     {
         private readonly ILogger<SpotController> _logger;
@@ -156,10 +157,17 @@ namespace DXws.Controllers
         }
         [HttpGet]
         [Route("GetAllCohortSpotsByBandComplexView")]
-        public async Task<ActionResult> GetAllCohortSpotsByBandComplexView(string Username)
+        public async Task<ActionResult> GetAllCohortSpotsByBandComplexView(string? input = "")
         {
+            string username;
+            if (string.IsNullOrEmpty(input))
+            {
+                username = AdminHelp.GetUser(HttpContext.User.Claims);
+            }
+            else username = input;
+
             List<BandModel> newResult = new List<BandModel>();
-            var cohorts = await _dbCohort.Get(Username);
+            var cohorts = await _dbCohort.Get(username);
             if (cohorts == null) return NotFound();
 
             var spots = await _dbSpots.GetAllCohortSpotsAsync(cohorts.Cohorts.ToArray(), 9999);

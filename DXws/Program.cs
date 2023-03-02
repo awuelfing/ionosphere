@@ -45,7 +45,7 @@ namespace DXws
                     options.LoginPath = "/account/login";
                     options.ExpireTimeSpan = TimeSpan.FromMinutes(200);
                     options.SlidingExpiration = true;
-                    options.AccessDeniedPath = "/account/index";
+                    options.AccessDeniedPath = "/web/index";
                 });
             /*
             builder.Services.AddAuthorization(options =>
