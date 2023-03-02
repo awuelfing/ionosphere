@@ -1,6 +1,19 @@
 ﻿@addTagHelper *,Microsoft.AspNetCore.Mvc.TagHelpers
 @model DXLib.Cohort.CohortRecord
 
+<script>
+    function Delete(id) {
+        $.ajax({
+            url: '/api/cohort/RemoveOne?id=' + id,
+            type: "DELETE",
+            complete: function(){
+                $('#rowzzz').remove();
+            }
+        });
+
+    }
+</script>
+
 <h4>CohortRecord</h4>
 <hr />
 <div class="row">
@@ -17,9 +30,9 @@
         <tbody>
             @foreach(string s in Model.Cohorts)
             {
-                <tr>
+                <tr id=@($"row{s}")>
                     <td>@s</td>
-                    <td><input type="button" value="Remove"/></td>
+                    <td><input type="button" value="Remove" onclick="Delete('@s')"/></td>
                 </tr>
             }
         </tbody>
@@ -37,10 +50,12 @@
 
 
 
+
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
 }

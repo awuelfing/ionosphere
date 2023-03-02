@@ -73,5 +73,14 @@ namespace DXws.Controllers
             await _dbCohort.Update(cohortRecord);
             return AcceptedAtAction(nameof(AppendOne), cohortRecord);
         }
+        [Route("RemoveOne")]
+        [HttpDelete]
+        //[HttpDelete("{id}")]
+        public async Task<IActionResult> RemoveOne(string id)
+        {
+            var username = AdminHelp.GetUser(HttpContext.User.Claims);
+            await _dbCohort.RemoveOne(username,id);
+            return NoContent();
+        }
     }
 }

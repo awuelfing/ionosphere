@@ -34,6 +34,7 @@ namespace DXws.Controllers.Web
         }
         [HttpGet]
         [Route("Edit")]
+        //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit()
         {
             var cohort = await _dbCohort.Get("Admin");

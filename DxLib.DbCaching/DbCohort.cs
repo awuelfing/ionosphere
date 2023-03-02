@@ -43,5 +43,17 @@ namespace DxLib.DbCaching
             await base.BaseDeleteAsync(filter);
             return;
         }
+        public async Task RemoveOne(string username,string callsign)
+        {
+            var filter = Builders<CohortRecord>.Filter.Eq("Username", username);
+            var record = await this.BaseGetOneAsync(filter);
+            if (record != null)
+            {
+                record.Cohorts = record.Cohorts.Where(x => !x.Equals(callsign)).ToList();
+            }
+            else return;
+            await base.BaseUpdateAsync(filter, record);
+            return;
+        }
     }
 }
