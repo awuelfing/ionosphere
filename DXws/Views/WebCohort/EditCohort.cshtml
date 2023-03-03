@@ -6,11 +6,21 @@
         $.ajax({
             url: '/api/cohort/RemoveOne?id=' + id,
             type: "DELETE",
-            complete: function(){
-                $('#rowzzz').remove();
+            complete: function () {
+                $('#row'+id).remove();
             }
         });
-
+    }
+    </script><script>
+    function AddCohort() {
+        var newval = $('#Callsign').val();
+        $.ajax({
+            url: '/api/cohort/AddOne?id=' + newval,
+            type: "PUT",
+            complete: function () {
+                $('#CohortTable tr:last').after('<tr id="row' + newval + '"><td>' + newval + '</td><td><input type="button" value="Remove" onclick="Delete(' + "'" + newval + "')" + '"/></td></tr>');
+            }
+        });
     }
 </script>
 
@@ -28,24 +38,23 @@
             </tr>
         </thead>
         <tbody>
-            @foreach(string s in Model.Cohorts)
+            @foreach (string s in Model.Cohorts)
             {
                 <tr id=@($"row{s}")>
                     <td>@s</td>
-                    <td><input type="button" value="Remove" onclick="Delete('@s')"/></td>
+                    <td><input type="button" value="Remove" onclick="Delete('@s')" /></td>
                 </tr>
             }
         </tbody>
-        <tfoot>
-            <tr>
-                <form id="AddForm" method="post" enctype="application/x-www-form-urlencoded" asp-controller="WebCohort" asp-action="AppendOne">
-                    <input type="hidden" name="Username" id="Username" value="@Model.Username" />
-                <td><input type="text" name="Callsign" id="Callsign"/></td>
-                <td><input type="submit" id="addCohortButton" value="Add" /></td>
-                </form>
-            </tr>
-        </tfoot>
     </table>
+    <div>
+        <form id="AddForm" method="post" enctype="application/x-www-form-urlencoded" asp-controller="WebCohort"
+            asp-action="AppendOne">
+            <input type="hidden" name="Username" id="Username" value="@Model.Username" />
+            <td><input type="text" name="Callsign" id="Callsign" /></td>
+            <td><input type="button" id="addCohortButton" value="Add" onclick=AddCohort() /></td>
+        </form>
+    </div>
 </div>
 
 
@@ -56,6 +65,8 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 
 }

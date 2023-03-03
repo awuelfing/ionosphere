@@ -55,5 +55,26 @@ namespace DxLib.DbCaching
             await base.BaseUpdateAsync(filter, record);
             return;
         }
+        public async Task AddOne(string username,string callsign)
+        {
+            var filter = Builders<CohortRecord>.Filter.Eq("Username", username);
+            var record = await this.BaseGetOneAsync(filter);
+            if (record != null)
+            {
+                record.Cohorts = record.Cohorts.Append(callsign);
+                await base.BaseUpdateAsync(filter, record);
+                return;
+            }
+            else
+            {
+                var newRecord = new CohortRecord()
+                {
+                    Username = username,
+                    Cohorts = new List<string>().Append(callsign)
+                };
+                await base.BaseStoreOneAsync(newRecord);
+                return;
+            }
+        }
     }
 }

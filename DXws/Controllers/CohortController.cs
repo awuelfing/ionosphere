@@ -82,5 +82,13 @@ namespace DXws.Controllers
             await _dbCohort.RemoveOne(username,id);
             return NoContent();
         }
+        [Route("AddOne")]
+        [HttpPut]
+        public async Task<IActionResult> AddOne(string id)
+        {
+            var username = AdminHelp.GetUser(HttpContext.User.Claims);
+            await _dbCohort.AddOne(username,id);
+            return NoContent();
+        }
     }
 }
