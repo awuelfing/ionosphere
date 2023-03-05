@@ -21,11 +21,13 @@ namespace DXws.Controllers
         private readonly ILogger<SpotController> _logger;
         private readonly DbSpots _dbSpots;
         private readonly DbCohort _dbCohort;
-        public SpotController(ILogger<SpotController> logger, DbSpots dbSpots,DbCohort dbCohort)
+        private readonly DbUser _dbUser;
+        public SpotController(ILogger<SpotController> logger, DbSpots dbSpots,DbCohort dbCohort,DbUser dbUser)
         {
             _dbSpots = dbSpots;
             _dbCohort = dbCohort;
             _logger = logger;
+            _dbUser = dbUser;
         }
         [HttpGet]
         public IActionResult Index()
@@ -160,6 +162,7 @@ namespace DXws.Controllers
         public async Task<ActionResult> GetAllCohortSpotsByBandComplexView(string? input = "")
         {
             string username;
+            int lookback;
             if (string.IsNullOrEmpty(input))
             {
                 username = AdminHelp.GetUser(HttpContext.User.Claims);
@@ -167,10 +170,15 @@ namespace DXws.Controllers
             else username = input;
 
             List<BandModel> newResult = new List<BandModel>();
+            
             var cohorts = await _dbCohort.Get(username);
             if (cohorts == null) return NotFound();
 
-            var spots = await _dbSpots.GetAllCohortSpotsAsync(cohorts.Cohorts.ToArray(), 9999);
+            var user = await _dbUser.GetUser(username);
+            if (user != null) lookback = user.DefaultLookback;
+            else lookback = 5;
+
+            var spots = await _dbSpots.GetAllCohortSpotsAsync(cohorts.Cohorts.ToArray(), lookback);
 
             var bands = spots.GroupBy(x => new { x.Band, x.Spottee, x.SpotterStationInfo?.Continent });
             foreach (var band in bands.DistinctBy(x => x.Key.Band))
