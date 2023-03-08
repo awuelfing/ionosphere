@@ -89,6 +89,7 @@ namespace DXws
             builder.Services.AddScoped<DbSpots, DbSpots>();
             builder.Services.AddScoped<DbCohort, DbCohort>();
             builder.Services.AddScoped<DbUser, DbUser>();
+            builder.Services.AddScoped<DbSummary, DbSummary>();
 
             var app = builder.Build();
 

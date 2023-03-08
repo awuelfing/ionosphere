@@ -22,6 +22,9 @@ namespace ClusterTaskRunner
         public bool EnableSpotUpload { get; set; } = false;
         public bool EnableStatusReport { get; set; } = false;
         public int StatusReportDelay { get; set; } = 10000;
+        public bool EnableSummaryUpload { get; set; } = false;
+        public int SummaryUploadFrequencySeconds { get; set; } = 300;
+        public string ProgramHost { get; set; } = string.Empty;
         public string[] Users { get; set; } = { };
     }
 }

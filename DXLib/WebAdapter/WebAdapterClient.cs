@@ -77,5 +77,9 @@ namespace DXLib.WebAdapter
             }
             return result;
         }
+        public async Task PostSummary(SummaryRecord summaryRecord)
+        {
+            await _httpClient.PostAsJsonAsync("/api/spot/summary", summaryRecord);
+        }
     }
 }

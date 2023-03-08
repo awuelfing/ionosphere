@@ -39,6 +39,7 @@ namespace ClusterTaskRunner
                 services.AddSingleton<SpotReporter>();
                 services.AddSingleton<ClusterRunner>();
                 services.AddSingleton<StatusReporter>();
+                services.AddSingleton<SummaryReporter>();
                 services.Configure<ProgramOptions>(configurationRoot.GetSection(ProgramOptions.ProgramOptionName));
                 services.Configure<ClusterClientOptions>(configurationRoot.GetSection(ClusterClientOptions.ClusterClient));
                 services.Configure<WebAdapterOptions>(configurationRoot.GetSection(WebAdapterOptions.WebAdapter));
@@ -128,6 +129,16 @@ namespace ClusterTaskRunner
                 _ = Task.Factory.StartNew(spotPurge, TaskCreationOptions.LongRunning);
                 Log.Debug("Spot Purge startup complete");
             }
+            if(options.EnableSummaryUpload)
+            {
+                var summaryUploader = host.Services.GetRequiredService<SummaryReporter>();
+                clusterConnection._clusterClient!.SpotReceived += summaryUploader.ReceiveSpots;
+
+                _ = Task.Factory.StartNew(
+                        summaryUploader.SummaryLoop,
+                        TaskCreationOptions.LongRunning);
+            }
+
             await host.RunAsync();
         }
     }
