@@ -19,5 +19,13 @@ namespace ClusterTaskRunner
 
             return (WindowStart, WindowEnd);
         }
+        public static void ValidateConfig(ProgramOptions options)
+        {
+            if(options.SummaryUploadFrequencySeconds > 0 
+                && ! (options.SummaryUploadFrequencySeconds % (60 * 60) == 0))
+            {
+                throw new Exception("SummaryUploadFrequencySeconds must divide cleanly into 60m");
+            }
+        }
     }
 }

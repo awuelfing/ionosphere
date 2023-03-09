@@ -49,6 +49,9 @@ namespace ClusterTaskRunner
             var host = builder.Build();
             
             var options = host.Services.GetRequiredService<IOptions<ProgramOptions>>().Value;
+
+            Helper.ValidateConfig(options);
+
             var clusterConnection = host.Services.GetRequiredService<ClusterRunner>();
 
             /*
