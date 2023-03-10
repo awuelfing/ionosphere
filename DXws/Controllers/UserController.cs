@@ -46,7 +46,7 @@ namespace DXws.Controllers
                 return BadRequest();
             }
             await _dbUser.BaseStoreOneAsync(userRecord);
-            return CreatedAtAction(nameof(Post), userRecord);
+            return CreatedAtAction(nameof(Get), userRecord);
         }
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(string id, UserRecord userRecord)

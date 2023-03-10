@@ -1,6 +1,7 @@
 ﻿using ClusterConnection;
 using DXLib.RBN;
 using DXLib.WebAdapter;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -20,12 +21,14 @@ namespace ClusterTaskRunner
         private readonly WebAdapterClient _client;
         private readonly BufferBlock<SpotEventArgs> _queue = new BufferBlock<SpotEventArgs>();
         private Dictionary<string, List<String>> _summary = new Dictionary<string, List<String>>();
+        public (DateTime Start, DateTime End) _window;
 
-        public SummaryReporter(ILogger<SummaryReporter> logger,IOptions<ProgramOptions> options,WebAdapterClient webAdapterClient)
+        public SummaryReporter(ILogger<SummaryReporter> logger,IOptions<ProgramOptions> options,WebAdapterClient webAdapterClient, IHostApplicationLifetime appLifetime)
         {
             _logger = logger;
             _options = options.Value;
             _client = webAdapterClient;
+            appLifetime.ApplicationStopping.Register( () => { Task t = PostSummary(); t.Wait(); });
         }
         public void ReceiveSpots(object? sender, SpotEventArgs e)
         {
@@ -35,11 +38,11 @@ namespace ClusterTaskRunner
 
         public async Task SummaryLoop()
         {
-            var window = Helper.CalcCurrentWindowUtc(_options.SummaryUploadFrequencySeconds);
+            _window = Helper.CalcCurrentWindowUtc(_options.SummaryUploadFrequencySeconds);
             while (true)
             {
                 var tokenSource = new CancellationTokenSource();
-                var delayMs = Convert.ToInt32(Math.Ceiling((window.End - DateTime.UtcNow).TotalMilliseconds));
+                var delayMs = Convert.ToInt32(Math.Ceiling((_window.End - DateTime.UtcNow).TotalMilliseconds));
 
                 Task reportTask = Task.Delay(delayMs,tokenSource.Token);
                 Task<bool> queueTask = _queue.OutputAvailableAsync(tokenSource.Token);
@@ -62,21 +65,26 @@ namespace ClusterTaskRunner
                     }
                 }
                 tokenSource.Cancel();
-                if(DateTime.UtcNow >  window.End)
+                if(DateTime.UtcNow >  _window.End)
                 {
-                    await _client.PostSummary(new SummaryRecord()
-                    {
-                        RecordStartUtc = window.Start,
-                        RecordEndUtc = window.End,
-                        Activity = _summary,
-                        TaskRunnerHost = _options.ProgramHost
-                    });
-                    _logger.Log(LogLevel.Information, "Posted summary");
-                    _summary.Clear();
-                    window = Helper.CalcCurrentWindowUtc(_options.SummaryUploadFrequencySeconds);
-                    _logger.Log(LogLevel.Trace, "window is {start} to {end}", window.Start, window.End);
+                    await PostSummary();
+                    _window = Helper.CalcCurrentWindowUtc(_options.SummaryUploadFrequencySeconds);
+                    _logger.Log(LogLevel.Trace, "window is {start} to {end}", _window.Start, _window.End);
                 }
             }
+        }
+
+        private async Task PostSummary()
+        {
+            await _client.PostSummary(new SummaryRecord()
+            {
+                RecordStartUtc = _window.Start,
+                RecordEndUtc = _window.End,
+                Activity = _summary,
+                TaskRunnerHost = _options.ProgramHost
+            });
+            _logger.Log(LogLevel.Information, "Posted summary");
+            _summary.Clear();
         }
     }
 }

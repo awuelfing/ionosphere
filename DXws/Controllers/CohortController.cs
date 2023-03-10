@@ -38,7 +38,7 @@ namespace DXws.Controllers
                 return Unauthorized();
             }
             await _dbCohort.BaseStoreOneAsync(cohortRecord);
-            return CreatedAtAction(nameof(Post), cohortRecord);
+            return CreatedAtAction(nameof(Get), cohortRecord);
         }
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(string id, CohortRecord cohortRecord)
@@ -71,7 +71,7 @@ namespace DXws.Controllers
             }
             cohortRecord.Cohorts = cohortRecord.Cohorts.Append(Callsign).ToList();
             await _dbCohort.Update(cohortRecord);
-            return AcceptedAtAction(nameof(AppendOne), cohortRecord);
+            return AcceptedAtAction(nameof(Get), cohortRecord);
         }
         [Route("RemoveOne")]
         [HttpDelete]
