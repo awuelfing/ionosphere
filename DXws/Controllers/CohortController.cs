@@ -2,6 +2,7 @@
 using DXLib.Cohort;
 using DXws.Admin;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Security.Claims;
@@ -26,7 +27,7 @@ namespace DXws.Controllers
             var result = await _dbCohort.Get(id);
             if(result == null)
             {
-                return NoContent();
+                return NotFound();
             }
             return Ok(result);
         }
@@ -43,7 +44,11 @@ namespace DXws.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(string id, CohortRecord cohortRecord)
         {
-            if(cohortRecord.Username != id)
+            if (AdminHelp.GetUser(HttpContext.User.Claims) != cohortRecord.Username)
+            {
+                return Unauthorized();
+            }
+            if (cohortRecord.Username != id)
             {
                 return BadRequest();
             }
@@ -60,6 +65,10 @@ namespace DXws.Controllers
         [Route("AppendOne")]
         public async Task<IActionResult> AppendOne(string Username, string Callsign)
         {
+            if (AdminHelp.GetUser(HttpContext.User.Claims) != Username)
+            {
+                return Unauthorized();
+            }
             CohortRecord? cohortRecord = await _dbCohort.Get(Username);
             if (cohortRecord == null)
             {
@@ -88,6 +97,23 @@ namespace DXws.Controllers
         {
             var username = AdminHelp.GetUser(HttpContext.User.Claims);
             await _dbCohort.AddOne(username,id);
+            return NoContent();
+        }
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> PartialUpdate(string id, JsonPatchDocument<CohortRecord> jsonPatch)
+        {
+            if (AdminHelp.GetUser(HttpContext.User.Claims) != id)
+            {
+                return Unauthorized();
+            }
+            var cohort = await _dbCohort.Get(id);
+            if (cohort == null)
+            {
+                //kiss
+                return NoContent();
+            }
+            jsonPatch.ApplyTo(cohort);
+            await _dbCohort.Update(cohort);
             return NoContent();
         }
     }

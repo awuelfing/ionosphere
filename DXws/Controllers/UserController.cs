@@ -3,6 +3,7 @@ using DXLib.Cohort;
 using DXLib.User;
 using DXws.Admin;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 
@@ -27,20 +28,14 @@ namespace DXws.Controllers
             var result = await _dbUser.GetUser(id);
             if (result == null)
             {
-                return NoContent();
+                return NotFound();
             }
             return Ok(result);
         }
         [HttpPost]
         public async Task<IActionResult> Post(UserRecord userRecord)
         {
-            var claimedUser = AdminHelp.GetUser(HttpContext.User.Claims);
-            if (claimedUser != userRecord.Username)
-            {
-                _logger.Log(LogLevel.Error,"Unauthorized access of {attempt} by {claimed}",userRecord.Username, claimedUser);
-                return Unauthorized();
-            }
-            var existing = _dbUser.GetUser(userRecord.Username);
+            var existing = await _dbUser.GetUser(userRecord.Username);
             if(existing != null)
             {
                 return BadRequest();
@@ -62,6 +57,18 @@ namespace DXws.Controllers
         public async Task<IActionResult> Delete(string id)
         {
             await _dbUser.Delete(id);
+            return NoContent();
+        }
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> PartialUpdate(string id,JsonPatchDocument<UserRecord> jsonPatch)
+        {
+            var user = await _dbUser.GetUser(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            jsonPatch.ApplyTo(user);
+            await _dbUser.Update(user);
             return NoContent();
         }
     }

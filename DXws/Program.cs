@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Net.Http.Headers;
+using Newtonsoft.Json.Serialization;
 
 namespace DXws
 {
@@ -74,9 +75,19 @@ namespace DXws
                      return CookieAuthenticationDefaults.AuthenticationScheme;
                  };
              });
-            
+
             //builder.Services.AddControllers();
-            builder.Services.AddControllersWithViews();
+            builder.Services.AddControllersWithViews(x =>
+            {
+                x.ReturnHttpNotAcceptable = true;
+            })
+            .AddNewtonsoftJson(y =>
+            {
+                y.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                y.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+            })
+            .AddXmlDataContractSerializerFormatters();
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
