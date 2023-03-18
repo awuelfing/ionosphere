@@ -3,6 +3,7 @@ using DXLib.RBN;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -105,6 +106,14 @@ namespace DxLib.DbCaching
                 throw new Exception("Maybe not...");
             }
             await _mongoCollection!.DeleteManyAsync(Builders<T>.Filter.Empty);
+        }
+        public IMongoQueryable<T> BaseGetIQueryable()
+        {
+            if (!this._initialized)
+            {
+                this.Initialize();
+            }
+            return _mongoCollection.AsQueryable();
         }
     }
 }

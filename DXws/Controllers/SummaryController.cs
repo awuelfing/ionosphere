@@ -24,5 +24,11 @@ namespace DXws.Controllers
             await _dbSummary.BaseStoreOneAsync(summaryRecord);
             return Ok();
         }
+        [HttpGet]
+        [Route("Summary")]
+        public async Task<ActionResult<SummaryRecord>> GetMostRecentSummart()
+        {
+            return await _dbSummary.GetMostRecentSummaryAsync();
+        }
     }
 }

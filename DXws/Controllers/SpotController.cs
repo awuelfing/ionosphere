@@ -211,5 +211,11 @@ namespace DXws.Controllers
 
             return View("View",newResult);
         }
+        [HttpGet]
+        [Route("/api/spots/{callsign}/continent/{continent}")]
+        public async Task<ActionResult<List<Spot>>> GetSpotsForContinent([FromRoute] string callsign, [FromRoute] string continent)
+        {
+            return await _dbSpots.GetAllSpotsForContinent(callsign, continent);
+        }
     }
 }

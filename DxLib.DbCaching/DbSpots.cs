@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,19 @@ namespace DxLib.DbCaching
         {
             var filter = Builders<Spot>.Filter.Eq("Spottee", Callsign.ToUpper());
             return await base.BaseGetManyAsync(filter);
+        }
+        public async Task<List<Spot>> GetAllSpotsForContinent(string callsign,string continent)
+        {
+            return await base.BaseGetIQueryable()
+                .Where(x => x.Spottee == callsign)
+                .Where(x => x.SpotterStationInfo != null)
+                .Where(x => x.SpotterStationInfo!.Continent == continent)
+                .ToListAsync();
+
+
+            //&& x.SpotterStationInfo.Continent == continent).ToListAsync();
+            // return await base._mongoCollection.AsQueryable()
+            //   .Where(x => x.Spottee == callsign && x.SpotterStationInfo.Continent == continent).ToListAsync();
         }
         public async Task<List<Spot>> GetAllCohortSpotsAsync(string[] calls)
         {
