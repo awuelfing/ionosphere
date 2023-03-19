@@ -2,6 +2,7 @@
 using DXLib.CtyDat;
 using DXLib.RBN;
 using DXLib.WebAdapter;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Serilog;
@@ -18,11 +19,14 @@ namespace ClusterTaskRunner
         public ClusterClient? _clusterClient;
         private readonly ClusterClientOptions _clusterClientOptions;
         private readonly ILogger<ClusterRunner> _logger;
+        private readonly IHostApplicationLifetime _appLife;
+        public int ConnectionRetries { get; set; } = 0;
 
-        public ClusterRunner(ILogger<ClusterRunner> logger, IOptions<ClusterClientOptions> clusterClientOptions)
+        public ClusterRunner(ILogger<ClusterRunner> logger, IOptions<ClusterClientOptions> clusterClientOptions, IHostApplicationLifetime appLifetime)
         {
             _logger= logger;
             _clusterClientOptions = clusterClientOptions.Value;
+            _appLife = appLifetime;
             //this is light enought to put in the constructor
             _clusterClient = new ClusterClient(_clusterClientOptions.Host, _clusterClientOptions.Port, _clusterClientOptions.Callsign);
         }
@@ -33,17 +37,32 @@ namespace ClusterTaskRunner
             _logger.Log(LogLevel.Information,"Cluster connection to {0}:{1} attempting to connect",
                 _clusterClientOptions.Host,
                 _clusterClientOptions.Port);
-            if (! await _clusterClient!.ConnectAsync())
+
+            bool connectionAttemptStatus = false;
+            try
             {
-                _logger.LogError("Cluster connection to {0}:{1} could not connect", 
+                connectionAttemptStatus = await _clusterClient.ConnectAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Connection exception");
+                connectionAttemptStatus = false;
+            }
+
+            if (connectionAttemptStatus == false)
+            {
+                _logger.LogError("Cluster connection to {0}:{1} could not connect, requesting program exit", 
                     _clusterClientOptions.Host, 
                     _clusterClientOptions.Port);
-                return;
+                _appLife.StopApplication();
             }
-            _logger.Log(LogLevel.Information,
+            else
+            {
+                _logger.Log(LogLevel.Information,
                 "Cluster connection to {0}:{1} succeeded",
                 _clusterClientOptions.Host,
                 _clusterClientOptions.Port);
+            }
         }
 
         public void ReceiveSpots(object? sender, SpotEventArgs e)
@@ -55,6 +74,25 @@ namespace ClusterTaskRunner
             _logger.LogError("Cluster connection to {0}:{1} disconnected", 
                 _clusterClientOptions.Host, 
                 _clusterClientOptions.Port);
+            ConnectionRetries++;
+            if (this.ConnectionRetries < _clusterClientOptions.ConnectionAttempts)
+            {
+                Thread.Sleep(5000);
+                try
+                {
+                    _clusterClient!.Connect();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogCritical(ex, "failed to reconnect, requesting program exit");
+                    _appLife.StopApplication();
+                }
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, "Connection attempts ({0}) exceeded, requesting program exit", _clusterClientOptions.ConnectionAttempts);
+                _appLife.StopApplication();
+            }
         }
     }
 }

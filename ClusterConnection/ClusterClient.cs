@@ -38,6 +38,10 @@ namespace ClusterConnection
             _sr = new StreamReader(_ns);
             _ns.Write(_outbuffer, 0, _outbuffer.Length);
 
+            Thread.Sleep(500);
+            _outbuffer = System.Text.Encoding.ASCII.GetBytes($"set/skimmer\n");
+            _ns.Write(_outbuffer, 0, _outbuffer.Length);
+
             Connected = true;
             return true;
         }
@@ -53,6 +57,10 @@ namespace ClusterConnection
             _sr = new StreamReader(_ns);
             await _ns.WriteAsync(_outbuffer, 0, _outbuffer.Length);
 
+            await Task.Delay(500);
+            _outbuffer = System.Text.Encoding.ASCII.GetBytes($"set/skimmer\n");
+            await _ns.WriteAsync(_outbuffer, 0, _outbuffer.Length);
+
             Connected = true;
             return true;
         }
@@ -63,7 +71,6 @@ namespace ClusterConnection
                 while (_client.Connected)
                 {
                     var line = _sr.ReadLine();
-                    //Console.WriteLine(line);
                     Debug.WriteLine(line);
                      MatchCollection spotCollection = Regex.Matches(line ?? "", _spotRegexNew, RegexOptions.Multiline);
 
@@ -103,7 +110,6 @@ namespace ClusterConnection
                 while (_client.Connected)
                 {
                     var line = await _sr.ReadLineAsync();
-                    //Console.WriteLine(line);
                     Debug.WriteLine(line);
                     MatchCollection spotCollection = Regex.Matches(line ?? "", _spotRegexNew, RegexOptions.Multiline);
 

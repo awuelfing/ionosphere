@@ -12,5 +12,7 @@ namespace ClusterConnection
         public string Host { get; set; } = string.Empty;
         public int Port { get; set; } = 0;
         public string Callsign { get; set; } = string.Empty;
+
+        public int ConnectionAttempts { get; set; } = 5;
     }
 }
