@@ -8,7 +8,7 @@ namespace ClusterTaskRunner
 {
     internal class Helper
     {
-        public static (DateTime Start,DateTime End) CalcCurrentWindowUtc(int seconds)
+        public static (DateTime Start, DateTime End) CalcCurrentWindowUtc(int seconds)
         {
             DateTime now = DateTime.UtcNow;
             int secondsFromHourBottom = (now.Minute * 60) + now.Second;
@@ -21,8 +21,8 @@ namespace ClusterTaskRunner
         }
         public static void ValidateConfig(ProgramOptions options)
         {
-            if(options.SummaryUploadFrequencySeconds > 0 
-                && ! ((60 * 60) % options.SummaryUploadFrequencySeconds == 0))
+            if (options.SummaryUploadFrequencySeconds > 0
+                && !((60 * 60) % options.SummaryUploadFrequencySeconds == 0))
             {
                 throw new Exception("SummaryUploadFrequencySeconds must divide cleanly into 60m");
             }

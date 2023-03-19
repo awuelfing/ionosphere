@@ -23,7 +23,7 @@ namespace ClusterTaskRunner
         private readonly ILogger<QueueRunner> _logger;
         public QueueRunner(ILogger<QueueRunner> logger, IOptions<ProgramOptions> programOptions, WebAdapterClient webAdapterClient)
         {
-            _logger= logger;
+            _logger = logger;
             _programOptions = programOptions.Value;
             _webAdapterClient = webAdapterClient;
         }
@@ -43,7 +43,7 @@ namespace ClusterTaskRunner
             while (true)
             {
                 await _queue.OutputAvailableAsync();
-                if(_queue.TryReceive(out var Callsign))
+                if (_queue.TryReceive(out var Callsign))
                 {
                     _logger.Log(LogLevel.Debug, "dequeued {Callsign}", Callsign);
                     if (_localAggregatedQueue.ContainsKey(Callsign))
@@ -82,7 +82,7 @@ namespace ClusterTaskRunner
                 string? s = await _webAdapterClient!.Dequeue();
                 if (s != null)
                 {
-                    _logger.Log(LogLevel.Debug, "resolving {s}",s);
+                    _logger.Log(LogLevel.Debug, "resolving {s}", s);
                     await _webAdapterClient.GetGeoAsync(s);
                     _logger.Log(LogLevel.Debug, "resolved {s}", s);
                 }

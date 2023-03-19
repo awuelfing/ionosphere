@@ -47,7 +47,7 @@ namespace ClusterTaskRunner
             });
 
             var host = builder.Build();
-            
+
             var options = host.Services.GetRequiredService<IOptions<ProgramOptions>>().Value;
 
             Helper.ValidateConfig(options);
@@ -62,7 +62,7 @@ namespace ClusterTaskRunner
 
             Log.Debug("Services registered");
 
-            if(options.EnableStatusReport)
+            if (options.EnableStatusReport)
             {
                 var statusReport = host.Services.GetRequiredService<StatusReporter>();
                 _ = Task.Factory.StartNew(statusReport.StatusLoop, TaskCreationOptions.LongRunning);
@@ -76,14 +76,14 @@ namespace ClusterTaskRunner
                 Log.Debug("Queue uploader startup complete");
             }
 
-            if(options.EnableQueueResolver)
+            if (options.EnableQueueResolver)
             {
                 _ = Task.Factory.StartNew(
                     host.Services.GetRequiredService<QueueRunner>().ProcessResolver,
                     TaskCreationOptions.LongRunning);
                 Log.Debug("Queue resolver startup complete");
             }
-            if(options.EnableSpotUpload)
+            if (options.EnableSpotUpload)
             {
                 var spotUploader = host.Services.GetRequiredService<SpotReporter>();
                 await spotUploader.PopulateCohorts();
@@ -99,7 +99,7 @@ namespace ClusterTaskRunner
                         TaskCreationOptions.LongRunning);
                 Log.Debug("Spot upload startup complete");
             }
-            if(options.EnableClusterConnection)
+            if (options.EnableClusterConnection)
             {
                 await clusterConnection.InitializeAsync();
                 _ = Task.Factory.StartNew(
@@ -107,7 +107,7 @@ namespace ClusterTaskRunner
                     TaskCreationOptions.LongRunning);
                 Log.Debug("Cluster connection initalized and startup complete");
             }
-            if(options.EnableKeepAlive)
+            if (options.EnableKeepAlive)
             {
                 var keepaliveDelay = options.KeepAliveDelay;
                 var keepalive = () =>
@@ -132,7 +132,7 @@ namespace ClusterTaskRunner
                 _ = Task.Factory.StartNew(spotPurge, TaskCreationOptions.LongRunning);
                 Log.Debug("Spot Purge startup complete");
             }
-            if(options.EnableSummaryUpload)
+            if (options.EnableSummaryUpload)
             {
                 var summaryUploader = host.Services.GetRequiredService<SummaryReporter>();
                 clusterConnection._clusterClient!.SpotReceived += summaryUploader.ReceiveSpots;

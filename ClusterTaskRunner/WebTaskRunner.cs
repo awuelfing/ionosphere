@@ -15,18 +15,18 @@ namespace ClusterTaskRunner
         private readonly WebAdapterClient _webAdapterClient;
         private readonly ProgramOptions _programOptions;
         private readonly ILogger<WebTaskRunner> _logger;
-        public WebTaskRunner(ILogger<WebTaskRunner> logger,WebAdapterClient webAdapterClient, IOptions<ProgramOptions> programOptions)
+        public WebTaskRunner(ILogger<WebTaskRunner> logger, WebAdapterClient webAdapterClient, IOptions<ProgramOptions> programOptions)
         {
             _logger = logger;
             _webAdapterClient = webAdapterClient;
             _programOptions = programOptions.Value;
         }
-        public async Task RunWebTask(string rightUri,int delay)
+        public async Task RunWebTask(string rightUri, int delay)
         {
             _logger.Log(
-                LogLevel.Trace, 
-                "WebTaskRunner starting for {rightUri} with delay {delay}", 
-                rightUri == string.Empty?"empty string":rightUri,
+                LogLevel.Trace,
+                "WebTaskRunner starting for {rightUri} with delay {delay}",
+                rightUri == string.Empty ? "empty string" : rightUri,
                 delay);
             while (true)
             {

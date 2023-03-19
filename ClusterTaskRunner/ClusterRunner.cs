@@ -24,7 +24,7 @@ namespace ClusterTaskRunner
 
         public ClusterRunner(ILogger<ClusterRunner> logger, IOptions<ClusterClientOptions> clusterClientOptions, IHostApplicationLifetime appLifetime)
         {
-            _logger= logger;
+            _logger = logger;
             _clusterClientOptions = clusterClientOptions.Value;
             _appLife = appLifetime;
             //this is light enought to put in the constructor
@@ -34,7 +34,7 @@ namespace ClusterTaskRunner
         {
             _clusterClient!.SpotReceived += this.ReceiveSpots;
             _clusterClient!.Disconnected += this.ReceiveDisconnect;
-            _logger.Log(LogLevel.Information,"Cluster connection to {0}:{1} attempting to connect",
+            _logger.Log(LogLevel.Information, "Cluster connection to {0}:{1} attempting to connect",
                 _clusterClientOptions.Host,
                 _clusterClientOptions.Port);
 
@@ -51,8 +51,8 @@ namespace ClusterTaskRunner
 
             if (connectionAttemptStatus == false)
             {
-                _logger.LogError("Cluster connection to {0}:{1} could not connect, requesting program exit", 
-                    _clusterClientOptions.Host, 
+                _logger.LogError("Cluster connection to {0}:{1} could not connect, requesting program exit",
+                    _clusterClientOptions.Host,
                     _clusterClientOptions.Port);
                 _appLife.StopApplication();
             }
@@ -71,8 +71,8 @@ namespace ClusterTaskRunner
         }
         public void ReceiveDisconnect(object? sender, EventArgs e)
         {
-            _logger.LogError("Cluster connection to {0}:{1} disconnected", 
-                _clusterClientOptions.Host, 
+            _logger.LogError("Cluster connection to {0}:{1} disconnected",
+                _clusterClientOptions.Host,
                 _clusterClientOptions.Port);
             ConnectionRetries++;
             if (this.ConnectionRetries < _clusterClientOptions.ConnectionAttempts)

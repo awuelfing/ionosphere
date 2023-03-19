@@ -24,7 +24,7 @@ namespace ClusterTaskRunner
         public event EventHandler? SpotUploaded;
         private readonly BufferBlock<SpotEventArgs> _queue = new BufferBlock<SpotEventArgs>();
 
-        public SpotReporter(ILogger<SpotReporter> logger,WebAdapterClient webAdapterClient, IOptions<ProgramOptions> programOptions)
+        public SpotReporter(ILogger<SpotReporter> logger, WebAdapterClient webAdapterClient, IOptions<ProgramOptions> programOptions)
         {
             _logger = logger;
             _webAdapterClient = webAdapterClient;
@@ -38,13 +38,13 @@ namespace ClusterTaskRunner
 
         public async void PumpSpots()
         {
-            while(true)
+            while (true)
             {
                 await _queue.OutputAvailableAsync();
-                if(_queue.TryReceive(out var eSpot))
+                if (_queue.TryReceive(out var eSpot))
                 {
                     _logger.Log(LogLevel.Trace, "dequeued {spot}", eSpot);
-                    if(_cohorts.Any(x=>x == eSpot.Spottee))
+                    if (_cohorts.Any(x => x == eSpot.Spottee))
                     {
                         _logger.Log(LogLevel.Trace, "qualified {spot}", eSpot);
                         Spot spot = eSpot.AsSpot();

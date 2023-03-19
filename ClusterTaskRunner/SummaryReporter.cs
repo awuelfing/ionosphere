@@ -23,12 +23,12 @@ namespace ClusterTaskRunner
         private Dictionary<string, List<String>> _summary = new Dictionary<string, List<String>>();
         public (DateTime Start, DateTime End) _window;
 
-        public SummaryReporter(ILogger<SummaryReporter> logger,IOptions<ProgramOptions> options,WebAdapterClient webAdapterClient, IHostApplicationLifetime appLifetime)
+        public SummaryReporter(ILogger<SummaryReporter> logger, IOptions<ProgramOptions> options, WebAdapterClient webAdapterClient, IHostApplicationLifetime appLifetime)
         {
             _logger = logger;
             _options = options.Value;
             _client = webAdapterClient;
-            appLifetime.ApplicationStopping.Register( () => { Task t = PostSummary(); t.Wait(); });
+            appLifetime.ApplicationStopping.Register(() => { Task t = PostSummary(); t.Wait(); });
         }
         public void ReceiveSpots(object? sender, SpotEventArgs e)
         {
@@ -44,7 +44,7 @@ namespace ClusterTaskRunner
                 var tokenSource = new CancellationTokenSource();
                 var delayMs = Convert.ToInt32(Math.Ceiling((_window.End - DateTime.UtcNow).TotalMilliseconds));
 
-                Task reportTask = Task.Delay(delayMs,tokenSource.Token);
+                Task reportTask = Task.Delay(delayMs, tokenSource.Token);
                 Task<bool> queueTask = _queue.OutputAvailableAsync(tokenSource.Token);
 
                 await Task.WhenAny(queueTask, reportTask);
@@ -52,7 +52,7 @@ namespace ClusterTaskRunner
                 if (_queue.TryReceive(out var eSpot))
                 {
                     _logger.Log(LogLevel.Trace, "dequeued {spot}", eSpot);
-                    if(_summary.ContainsKey(eSpot.Spottee))
+                    if (_summary.ContainsKey(eSpot.Spottee))
                     {
                         if (!_summary[eSpot.Spottee].Contains(eSpot.Band))
                         {
@@ -65,7 +65,7 @@ namespace ClusterTaskRunner
                     }
                 }
                 tokenSource.Cancel();
-                if(DateTime.UtcNow >  _window.End)
+                if (DateTime.UtcNow > _window.End)
                 {
                     await PostSummary();
                     _window = Helper.CalcCurrentWindowUtc(_options.SummaryUploadFrequencySeconds);
