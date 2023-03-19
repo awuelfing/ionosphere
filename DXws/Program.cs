@@ -80,6 +80,8 @@ namespace DXws
             builder.Services.AddControllersWithViews(x =>
             {
                 x.ReturnHttpNotAcceptable = true;
+                x.CacheProfiles.Add("CacheLong", new() { Duration = 600, VaryByQueryKeys = new[] { "*" }  });
+                x.CacheProfiles.Add("CacheShort", new() { Duration = 60, VaryByQueryKeys = new[] { "*" } });
             })
             .AddNewtonsoftJson(y =>
             {
@@ -90,6 +92,7 @@ namespace DXws
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddResponseCaching();
 
             builder.Services.Configure<DbCacheOptions>(builder.Configuration.GetSection(DbCacheOptions.DbCache));
             builder.Services.Configure<HamQTHOptions>(builder.Configuration.GetSection(HamQTHOptions.HamQTH));
@@ -118,7 +121,7 @@ namespace DXws
 
             app.UseAuthorization();
 
-
+            app.UseResponseCaching();
             app.MapControllers();
 
 

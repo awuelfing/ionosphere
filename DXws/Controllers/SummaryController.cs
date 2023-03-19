@@ -26,6 +26,7 @@ namespace DXws.Controllers
         }
         [HttpGet]
         [Route("Summary")]
+        [ResponseCache(CacheProfileName = "CacheShort")]
         public async Task<ActionResult<SummaryRecord>> GetMostRecentSummart()
         {
             return await _dbSummary.GetMostRecentSummaryAsync();

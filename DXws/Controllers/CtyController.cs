@@ -8,6 +8,7 @@ namespace DXws.Controllers
 {
     [Route("api/lookups/cty")]
     [ApiController]
+    [ResponseCache(CacheProfileName ="CacheLong")]
     public class CtyController : ControllerBase
     {
         private readonly ILogger<CtyController> _logger;

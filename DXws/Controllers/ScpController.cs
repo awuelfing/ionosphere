@@ -7,6 +7,7 @@ namespace DXws.Controllers
 {
     [Route("api/lookups/scp")]
     [ApiController]
+    [ResponseCache(CacheProfileName = "CacheLong")]
     public class ScpController : ControllerBase
     {
         private readonly ILogger<ScpController> _logger;

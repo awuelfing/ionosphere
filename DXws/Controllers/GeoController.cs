@@ -4,6 +4,7 @@ using DXLib.Maidenhead;
 namespace DXws.Controllers
 {
     [Route("api/lookups/geo")]
+    [ResponseCache(CacheProfileName = "CacheLong")]
     public class GeoController : Controller
     {
         [Route("FromMaidenhead")]
