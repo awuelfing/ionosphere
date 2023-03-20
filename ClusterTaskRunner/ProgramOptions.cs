@@ -24,7 +24,8 @@ namespace ClusterTaskRunner
         public int StatusReportDelay { get; set; } = 10000;
         public bool EnableSummaryUpload { get; set; } = false;
         public int SummaryUploadFrequencySeconds { get; set; } = 300;
-        public string ProgramHost { get; set; } = string.Empty;
+        public bool EnableClusterReport { get; set; } = false;
         public string[] Users { get; set; } = { };
+        public string ProgramHost { get; set; } = string.Empty;
     }
 }

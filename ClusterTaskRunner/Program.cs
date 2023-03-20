@@ -40,6 +40,7 @@ namespace ClusterTaskRunner
                 services.AddSingleton<ClusterRunner>();
                 services.AddSingleton<StatusReporter>();
                 services.AddSingleton<SummaryReporter>();
+                services.AddSingleton<ClusterReporter>();
                 services.Configure<ProgramOptions>(configurationRoot.GetSection(ProgramOptions.ProgramOptionName));
                 services.Configure<ClusterClientOptions>(configurationRoot.GetSection(ClusterClientOptions.ClusterClient));
                 services.Configure<WebAdapterOptions>(configurationRoot.GetSection(WebAdapterOptions.WebAdapter));
@@ -140,6 +141,12 @@ namespace ClusterTaskRunner
                 _ = Task.Factory.StartNew(
                         summaryUploader.SummaryLoop,
                         TaskCreationOptions.LongRunning);
+            }
+            if(options.EnableClusterReport)
+            {
+                //just run this once on startup
+                var clusterReporter = host.Services.GetRequiredService<ClusterReporter>();
+                await clusterReporter.ReportCluster();
             }
 
             await host.RunAsync();

@@ -1,4 +1,5 @@
 ﻿using DxLib.DbCaching;
+using DXLib.ClusterList;
 using DXLib.Cohort;
 using DXLib.HamQTH;
 using DXLib.RBN;
@@ -80,6 +81,10 @@ namespace DXLib.WebAdapter
         public async Task PostSummary(SummaryRecord summaryRecord)
         {
             await _httpClient.PostAsJsonAsync("/api/spot/summary", summaryRecord);
+        }
+        public async Task PostClusterAsync(ClusterRecord clusterRecord)
+        {
+            await _httpClient.PostAsJsonAsync("/api/cluster", clusterRecord);
         }
     }
 }
