@@ -52,16 +52,16 @@ namespace ClusterTaskRunner
                 if (_queue.TryReceive(out var eSpot))
                 {
                     _logger.Log(LogLevel.Trace, "dequeued {spot}", eSpot);
-                    if (_summary.ContainsKey(eSpot.Spottee))
+                    if (_summary.ContainsKey(eSpot.Spottee.ToUpper()))
                     {
-                        if (!_summary[eSpot.Spottee].Contains(eSpot.Band))
+                        if (!_summary[eSpot.Spottee.ToUpper()].Contains(eSpot.Band))
                         {
-                            _summary[eSpot.Spottee].Add(eSpot.Band);
+                            _summary[eSpot.Spottee.ToUpper()].Add(eSpot.Band);
                         }
                     }
                     else
                     {
-                        _summary[eSpot.Spottee] = new List<String>() { eSpot.Band };
+                        _summary[eSpot.Spottee.ToUpper()] = new List<String>() { eSpot.Band };
                     }
                 }
                 tokenSource.Cancel();
