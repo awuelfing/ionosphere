@@ -7,7 +7,6 @@ namespace DXws.Controllers
 {
     [ApiController]
     [Route("/api/cluster")]
-    [Authorize(Roles = "Admin")]
     public class ClusterController : Controller
     {
         private readonly ILogger<ClusterController> _logger;
@@ -17,8 +16,14 @@ namespace DXws.Controllers
             _logger = logger;
             _dbCluster = dbCluster;
         }
-
+        [HttpGet]
+        public async Task<ActionResult<ClusterRecord>> GetMostRecentCluster()
+        {
+            var result = await _dbCluster.GetMostRecentClusterAsync();
+            return Ok(result);
+        }
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PostClusterRoot(ClusterRecord clusterRecord)
         {
             _logger.Log(LogLevel.Information, "Received cluster info");
